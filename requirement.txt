@@ -1,0 +1,127 @@
+Implement a user level multithreading library. Since it's Linux systems, the library should come with options to do one-one,  many-one or many-many scheudling (any 2 of the three) of user threads on kernel threads. It should support following functions:
+thread_create() ; // provide option to use a desired mapping.
+--->Upon successful creation, pthread_create() shall store the ID of the created thread in the location referenced by thread. In our implementation, the second argument (attr) shall always be NULL. 
+ int pthread_create(pthread_t *restrict thread, NULL , void *(*start_routine)(void*), void *restrict arg);
+												|
+												-function name
+												
+thread_join()
+thread_self()
+--->return the thread ID of the calling thread;
+thread_exit()
+--->      void pthread_exit(void *value_ptr);
+function shall terminate the calling thread. In our current implementation, we ignore the value passed in as the first argument (value_ptr) and clean up all information related to the terminating thread. The process shall exit with an exit status of 0 after the last thread has been terminated. The behavior shall be as if the implementation called exit() with a zero argument at thread termination time.
+thread_lock(); // a spinlock
+thread_unlock();  // spin-unlock
+thread_kill();
+
+Note: you need to use the SIGALRM signals to do scheduling. Learn setjmp and longjmp in C library, you may also use the ucontext library.
+
+Each of the two library implementations: 13 marks each. ,
+
+Automated Testing code: 10 marks
+
+synchronization: 8 marks
+
+signal handling: 6 marks
+
+
+
+THINGS TO STUDY:
+signal mask
+how to context save and load by functions provided by c library
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+This provides the capability of controlling
+thread execution sequences, since the scheduler runs at user level. This thread library
+has to be made an integral part of a framework that can capture all events that affect
+concurrency. Such events include I/O system calls, signals and timers.
+
+In a many-to-one model, many threads run on top of a single process.
+The advantage of this approach is that context switching takes place
+completely at user level. Switching context just involves saving and loading
+the stack pointer, CPU registers and signal mask.
+
+Each thread has its own context, which consists of (a) the set of CPU registers and (b) a stack.
+Goal of library is to:
+-create and start new threads
+-terminate it
+-manipulate
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+Steps:
+1.figure out the data structure for threading:
+Question2: How many max threads we can assume 
+Question3: How many seconds per thread should run 50ms
+Question4: Stack is implemented as grow_down or grow_up
+global thread *all_threads;
+struct thread {
+	register
+	thread_id
+	stack_pointer //thread's stack area------> Question1: so for each thread there is different stack area: Ans YES, rest sections are shared
+	status 	//running,ready,exited
+	argument
+	routine name
+	
+}
+//will be called only once for first create. (Didnt really get on why only first)
+void init(thread t) {
+
+}
+
+whenever a thread_create() is called an init routine should be their to initialise the required details.
+now considering multiple threads , need a function to switch:
+	-->setjmp and longjmp from <signal.h> library
+	-->setjmp saves the current stateand switch to another.
+	-->you can have the currently executing thread call setjmp and save the result in the thread's TCB. Then, your thread subsystem can pick another thread, and use the saved jmp_buf of that thread together with longjmp to resume the execution of the new thread.
+	-->round robin scheduling
+	FOR TIMER FUNCTION:
+		-->ualarm and settimer can be used ---> whenever alarm goes off, it invokes SIGALRM
+		--->use sigaction with the SA_NODEFER flag for switching between threads
+		
+
+
+Creating a thread
+-------------------
+->genereate thread id, and provide stacks(done by malloc->32767 bytes)
+->use setjmp, save it in buf, and then jump it in reuire arg, so eip changes, and stack pointer changes to newly allocated area.
+
+
+static long int i64_ptr_mangle(long int p)
+   {
+        long int ret;
+        asm(" mov %1, %%rax;\n"
+            " xor %%fs:0x30, %%rax;"
+            " rol $0x11, %%rax;"
+            " mov %%rax, %0;"
+        : "=r"(ret)
+        : "r"(p)
+        : "%rax"
+        );
+        return ret;
+   }
+   
+   whenever a thread gets over ->implicit jump needs to be done
+   
+   Also needs to check about how to pass arguments to different functions
+   Now, the question is how we can pass the required argument to the start function of the thread? One possible solution is to introduce a wrapper function. This wrapper function could grab the argument from the TCB and then invoke the actual start function, passing it the required argument. In addition, the wrapper function also provides a convenient way to handle the case when the start function returns and you have to call pthread_exit. For this, you can simply invoke pthread_exit after the thread returns from the previous call to the start function. When you use a wrapper function, you need to make the program counter (EIP) point to this function instead of the actual start function. And you need to find a way to make the address of the start function available to the wrapper.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+LINUX THREADS
+INSTEAd of fork() to clone() with flags
+
+
+
+
+
+
+
