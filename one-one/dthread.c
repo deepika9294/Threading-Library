@@ -13,7 +13,8 @@ int fn(void *arg) {
     // calling the routine.
     if(sigsetjmp(t->env, 0) == 0)
         t->err_return_value = t->start_routine(t->args);
-    exit(EXIT_SUCCESS);
+    // exit(EXIT_SUCCESS);
+    return 0;
 }
 
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args) {
@@ -77,7 +78,8 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     printf("PID in func: %d\n", getpid());
     // free(t);
     printf("exiting successfully");
-    exit(EXIT_SUCCESS);
+    // exit(EXIT_SUCCESS);
+    return 0;
 }
 void* func1(void *args){
 	int i = 0;
