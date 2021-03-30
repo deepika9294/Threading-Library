@@ -15,11 +15,6 @@
 #define MAX_THREAD 20
 
 
-// #define THREAD_UNSTARTED 0
-// #define THREAD_RUNNABLE 1
-// #define THREAD_RUNNING 2
-// #define THREAD_NOT_RUNNABLE 3
-// #define THREAD_DEAD 4
 
 typedef unsigned long int dthread_t;
 
@@ -27,7 +22,7 @@ typedef unsigned long int dthread_t;
 typedef struct dthread {
     dthread_t tid;
     pid_t pid;
-    // int status; //running-0, ready-1, exit-2
+    // int status; //detached or joinable
     char *stack;
     void *(*start_routine)(void *);
     void *args;

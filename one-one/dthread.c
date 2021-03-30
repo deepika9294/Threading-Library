@@ -90,19 +90,28 @@ void* func1(void *args){
 	return args;
 }	
 void* func2(void *args){
-	printf("Hi\n");
+	printf("Hi, Sup\n");
 	return args;
+}
+
+void* func3(void *args) {
+    int a = 2, b = 3;
+    printf("Sum is: %d", a+b);
+    return args;
 }
 int main()
 {
-	dthread_t t1, t2;
+	dthread_t t1, t2, t3;
     pid_t p1;
     p1  = getpid();
     printf("PID in main: %d\n", p1);
 	dthread_init();
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
-	// printf("Wow %d,  %d ", a1,a2);
+	int a3 = dthread_create( &t3, func3 , NULL);	
+
+	printf("Wow %d,  %d %d", a1,a2,a3)
+    ;
 	printf("r");
 	return 0;
 }
