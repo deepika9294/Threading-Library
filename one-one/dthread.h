@@ -14,6 +14,9 @@
 #define THREAD_STACK_SIZE (1024 * 128)
 #define MAX_THREAD 20
 
+#define JOINABLE 1
+#define JOINED 2
+#define DETACHED 3
 
 typedef unsigned long int dthread_t;
 
@@ -21,12 +24,12 @@ typedef unsigned long int dthread_t;
 typedef struct dthread {
     dthread_t tid;
     pid_t pid;
-    // int status; //detached or joinable
+    int state; //detached, joinable, joined
     char *stack;
     void *(*start_routine)(void *);
     void *args;
     void* retval;   //on success returns NULL (create_thread)
-
+    
 } dthread;
 
 // for clone
@@ -37,3 +40,10 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
 void dthread_exit(void *return_value);
 void dthread_exit(void *retval);
 dthread_t dthread_self(void);
+int dthread_join(dthread_t thread, void **retval);
+/*
+check if the thread has terminanted or not by retval:
+fetch the thread from the list and check if it joinable.
+on success returns 0 else err no
+wait for the thread to terminante.
+*/

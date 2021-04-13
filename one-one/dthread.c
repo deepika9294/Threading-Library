@@ -42,7 +42,7 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     t->args = args;
     t->start_routine = start_routine;
     t->pid = getpid();
-
+    t->state = JOINABLE;
     clone_return = clone(fn, stack_top, SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, (void *)t);
     if(clone_return == -1) {
         perror("clone");
@@ -53,11 +53,13 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     insert_beg(threads, t);
 
     //waiting for the execution.
-    int status;
-    if (wait(&status) == -1) {
-        perror("wait");
-        exit(1);
-    }
+    //below code will be in join function
+
+    // int status;
+    // if (wait(&status) == -1) {
+    //     perror("wait");
+    //     exit(1);
+    // }
     // printf("exiting successfully");
     return 0;
 }
@@ -87,11 +89,15 @@ dthread_t dthread_self(void) {
         return 0;
     */
    return tid;
-
-
 }
+
+
+
+
 //------------------------------------------
 void* func1(void *args){
+    // sleep(5);
+
 	int i = 0;
 	while(i < 5){
 		printf("%d :Hello World!\n", i);
@@ -109,11 +115,11 @@ void* func2(void *args){
 }
 
 void* func3(void *args) {
-    int i = 0;
-	while(i < 5){
-		printf("%d :Hello World!\n", i);
-		i++;
-	}
+    // int i = 0;
+	// while(i < 5){
+	// 	printf("%d :Hello World!\n", i);
+	// 	i++;
+	// }
     int a = 2, b = 3;
     printf("Sum is: %d", a+b);
     return args;
