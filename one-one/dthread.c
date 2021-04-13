@@ -95,8 +95,8 @@ int dthread_join(dthread_t thread, void **retval) {
 
     dthread *td = get_node_by_tid(threads, thread);
     if(td == NULL){
-        printf("---***%ld",thread);
-        return 3; //check the err value
+        // printf("---***%ld",thread);
+        return ESRCH;
     }
     int status, exit_status;
 
@@ -109,7 +109,7 @@ int dthread_join(dthread_t thread, void **retval) {
     // }
     
     if(td->state == DETACHED || td->state == JOINED) {
-        return 3;
+        return EINVAL;
     }
     if(td->state == JOINABLE) {
         td->state = JOINED;
@@ -135,7 +135,7 @@ void* func2(void *args){
     sleep(5);
    
 	printf("Hi, Sup\n");
-    // dthread_exit(NULL);
+    dthread_exit(NULL);
 	printf("Hi, Supss\n");
 
 	return args;
