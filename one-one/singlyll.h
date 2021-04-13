@@ -13,8 +13,7 @@ typedef struct list {
 } list;
 
 void init_threads(list *t);
-int get_count(list *t);
 void insert_beg(list *t, dthread *td);
-dthread remove_last(list *t);
+dthread* remove_last(list *t);
 void show(list *t);
 

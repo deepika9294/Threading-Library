@@ -47,6 +47,23 @@ void show(list *t) {
     printf("\nTOTAL: %d",t->count);
 }
 
+dthread* remove_last(list *t) {
+    node *temp;
+    dthread *td;
+    if(t->tail == NULL) {
+        printf("\nEmpty list");
+        return NULL;
+    }
+    temp = t->head;
+    while(temp->next != t->tail) {
+        temp = temp->next;
+    }
+    td = t->tail->td;
+    t->tail = temp;
+    t->tail->next = NULL;
+    return td;
+}
+
 // int main() {
 //     dthread *t;
 //     // int t;

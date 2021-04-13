@@ -103,6 +103,7 @@ int main()
 	dthread_t t1, t2, t3;
     pid_t p1;
     p1  = getpid();
+    dthread *td;
     printf("PID in main: %d\n", p1);
 	dthread_init();
 	int a1 = dthread_create( &t1, func1 , NULL);
@@ -112,6 +113,10 @@ int main()
     show(threads);
 	printf("Wow %d,  %d %d", a1,a2,a3);
 	printf("r");
+
+    td = remove_last(threads);
+    show(threads);
+    
 	return 0;
 }
 
