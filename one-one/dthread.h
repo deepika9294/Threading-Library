@@ -27,16 +27,10 @@ typedef struct dthread {
     void *(*start_routine)(void *);
     void *args;
     void* err_return_value;   //on success returns NULL (create_thread)
-    sigjmp_buf env;
+    // sigjmp_buf env;
 
 } dthread;
 
-
-// typedef struct all_dthread {
-//     struct dthread threads[MAX_THREAD];   
-//     int count;
-// } all_dthread;
-// struct all_dthread adt;
 
 
 // for clone

@@ -3,7 +3,6 @@
 #include "singlyll.h"
 
 void init_threads(list *t) {
-    printf("Essnter");
 
     t->count = 0;
     t->tail = NULL;
@@ -11,8 +10,7 @@ void init_threads(list *t) {
 }
 
 void insert_beg(list *t, dthread *td) {
-    printf("Essnter");
-
+    //add condition for maximum
     node *ptr;
     ptr = (node*)malloc(sizeof(node));
     if(ptr == NULL) {
@@ -33,7 +31,6 @@ void insert_beg(list *t, dthread *td) {
 }
 
 void show(list *t) {
-    printf("Enter");
     node *ptr;
     if(t->head == NULL) {
         printf("\nEmpty");
@@ -41,7 +38,7 @@ void show(list *t) {
     }
     ptr = t->head;
     while(ptr != NULL) {
-        printf("\nTID: %d", ptr->td->tid);
+        printf("\nTID: %ld,  PID: %d", ptr->td->tid, ptr->td->pid);
         ptr = ptr->next;
     }
     printf("\nTOTAL: %d",t->count);

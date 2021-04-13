@@ -15,15 +15,12 @@ int fn(void *arg) {
     // sleep(10);
     dthread *t = (dthread *)arg;
     // calling the routine.
-    if(sigsetjmp(t->env, 0) == 0)
-        t->err_return_value = t->start_routine(t->args);
+    t->err_return_value = t->start_routine(t->args);
     return 0;
 }
 
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args) {
-    printf("Creating");
     // allocate memory
-
     struct dthread *t;
     t = (dthread *) malloc(sizeof(dthread));
     if(t == NULL) {
@@ -32,14 +29,6 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     }
     int clone_return;
     char *stack_top;
-
-    //by using malloc
-    /*
-        t->stack = (char *)malloc(THREAD_STACK_SIZE);
-        if(t->stack == NULL) {
-        printf("Stack cannot be initialised");
-    }
-    */
 
     // by using mmap
 
@@ -50,19 +39,15 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     }
     stack_top = t->stack + THREAD_STACK_SIZE;
     
-    //updating list of all_threads
-    
-    // all_dthread1.dthread_count++;
     t->args = args;
     t->start_routine = start_routine;
-
+    t->pid = getpid();
 
     clone_return = clone(fn, stack_top, SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, (void *)t);
     if(clone_return == -1) {
         perror("clone");
         exit(EXIT_FAILURE);
     }
-    printf("Clone: %d\n", clone_return);
     t->tid = clone_return;      //assigning the thread_id
 
     insert_beg(threads, t);
@@ -73,13 +58,12 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
         perror("wait");
         exit(1);
     }
-    // t->pid = waitpid(t->tid, &status, SIGCHLD);
-    printf("PID in func: %d\n", getpid());
-    // free(t);
-    printf("exiting successfully");
-    // exit(EXIT_SUCCESS);
+    // printf("exiting successfully");
     return 0;
 }
+
+
+//------------------------------------------
 void* func1(void *args){
 	int i = 0;
 	while(i < 5){
@@ -113,7 +97,6 @@ int main()
     show(threads);
 	printf("Wow %d,  %d %d", a1,a2,a3);
 	printf("r");
-
     td = remove_last(threads);
     show(threads);
     
