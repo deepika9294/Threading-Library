@@ -32,11 +32,11 @@ typedef struct dthread {
 } dthread;
 
 
-typedef struct all_dthread {
-    struct dthread threads[MAX_THREAD];   
-    int count;
-} all_dthread;
-struct all_dthread adt;
+// typedef struct all_dthread {
+//     struct dthread threads[MAX_THREAD];   
+//     int count;
+// } all_dthread;
+// struct all_dthread adt;
 
 
 // for clone

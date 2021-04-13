@@ -1,9 +1,13 @@
-#include "dthread.h"
+// #include "dthread.h"
+#include "singlyll.h"
 
-
+//global variable
+static list *threads;
 
 void dthread_init() {
-    adt.count = 0;
+    // adt.count = 0;
+    threads = (list *)malloc(sizeof(list));
+    init_threads(threads);
 }
 
 
@@ -13,7 +17,6 @@ int fn(void *arg) {
     // calling the routine.
     if(sigsetjmp(t->env, 0) == 0)
         t->err_return_value = t->start_routine(t->args);
-    // exit(EXIT_SUCCESS);
     return 0;
 }
 
@@ -49,16 +52,10 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     
     //updating list of all_threads
     
-    // all_dthread1.all_dthreads[all_dthread1.dthread_count++] = *t;
-    // memcpy(all_dthread1.all_dthreads[all_dthread1.dthread_count], t, sizeof(struct dthread));
     // all_dthread1.dthread_count++;
     t->args = args;
     t->start_routine = start_routine;
-    // The arg argument is passed as the argument of the function fn.
-    // call a clone system call
 
-    adt.threads[adt.count++] = *t;
-    printf("Count: %d\n\n", adt.count);
 
     clone_return = clone(fn, stack_top, SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, (void *)t);
     if(clone_return == -1) {
@@ -67,6 +64,8 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     }
     printf("Clone: %d\n", clone_return);
     t->tid = clone_return;      //assigning the thread_id
+
+    insert_beg(threads, t);
 
     //waiting for the execution.
     int status;
@@ -109,9 +108,9 @@ int main()
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func3 , NULL);	
-
-	printf("Wow %d,  %d %d", a1,a2,a3)
-    ;
+    printf("\nprinting thread details");
+    show(threads);
+	printf("Wow %d,  %d %d", a1,a2,a3);
 	printf("r");
 	return 0;
 }
