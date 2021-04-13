@@ -60,6 +60,23 @@ dthread* remove_last(list *t) {
     t->tail->next = NULL;
     return td;
 }
+dthread* get_node_by_tid(list *t, dthread_t tid) {
+    node *temp;
+    dthread *td;
+    if(t->tail == NULL) {
+        return NULL;
+    }
+    temp = t->head;
+    while(temp->next != NULL) {
+        if(tid == temp->td->tid) {
+            return temp->td;
+        }
+        else {
+            temp == temp->next;
+        }
+    }
+    return NULL;
+}
 
 // int main() {
 //     dthread *t;

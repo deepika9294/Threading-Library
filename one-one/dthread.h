@@ -15,7 +15,6 @@
 #define MAX_THREAD 20
 
 
-
 typedef unsigned long int dthread_t;
 
 
@@ -26,12 +25,9 @@ typedef struct dthread {
     char *stack;
     void *(*start_routine)(void *);
     void *args;
-    void* err_return_value;   //on success returns NULL (create_thread)
-    // sigjmp_buf env;
+    void* retval;   //on success returns NULL (create_thread)
 
 } dthread;
-
-
 
 // for clone
 int fn(void *arg);
@@ -39,3 +35,5 @@ int fn(void *arg);
 void dthread_init(void);
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args);
 void dthread_exit(void *return_value);
+void dthread_exit(void *retval);
+dthread_t dthread_self(void);

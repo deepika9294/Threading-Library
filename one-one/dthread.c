@@ -15,7 +15,7 @@ int fn(void *arg) {
     // sleep(10);
     dthread *t = (dthread *)arg;
     // calling the routine.
-    t->err_return_value = t->start_routine(t->args);
+    t->retval = t->start_routine(t->args);
     return 0;
 }
 
@@ -62,7 +62,34 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     return 0;
 }
 
+void dthread_exit(void *retval) {
+    dthread_t tid = dthread_self();
+    //check later for main thread.
 
+    //get the node with tid and change its return value;
+    dthread *td = get_node_by_tid(threads, tid);
+    if(td == NULL) {
+        return;
+    }
+    td->retval = retval;
+    //check how to exit ---->currently seems to work, check the flow once
+    exit(0);
+
+}
+
+dthread_t dthread_self(void) {
+    dthread_t tid =   gettid();
+    printf("\nthreadid: %d",tid );
+    //Question : do we store main thread too?
+    //if main thread is stored.....
+    /*
+    if(getpid() == tid)
+        return 0;
+    */
+   return tid;
+
+
+}
 //------------------------------------------
 void* func1(void *args){
 	int i = 0;
@@ -73,11 +100,20 @@ void* func1(void *args){
 	return args;
 }	
 void* func2(void *args){
+   
 	printf("Hi, Sup\n");
+    dthread_exit(NULL);
+	printf("Hi, Supss\n");
+
 	return args;
 }
 
 void* func3(void *args) {
+    int i = 0;
+	while(i < 5){
+		printf("%d :Hello World!\n", i);
+		i++;
+	}
     int a = 2, b = 3;
     printf("Sum is: %d", a+b);
     return args;
