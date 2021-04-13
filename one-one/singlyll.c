@@ -67,12 +67,12 @@ dthread* get_node_by_tid(list *t, dthread_t tid) {
         return NULL;
     }
     temp = t->head;
-    while(temp->next != NULL) {
+    while(temp != NULL) {
         if(tid == temp->td->tid) {
             return temp->td;
         }
         else {
-            temp == temp->next;
+            temp = temp->next;
         }
     }
     return NULL;

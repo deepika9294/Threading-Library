@@ -51,7 +51,7 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     t->tid = clone_return;      //assigning the thread_id
 
     insert_beg(threads, t);
-
+    *thread = t->tid;
     //waiting for the execution.
     //below code will be in join function
 
@@ -91,12 +91,38 @@ dthread_t dthread_self(void) {
    return tid;
 }
 
+int dthread_join(dthread_t thread, void **retval) {
+
+    dthread *td = get_node_by_tid(threads, thread);
+    if(td == NULL){
+        printf("---***%ld",thread);
+        return 3; //check the err value
+    }
+    int status, exit_status;
 
 
+    // need to update retval while creating it.
+
+    // if(td->retval == NULL) {
+    //     printf("RETVal: %ld", td->tid);
+    //     return 3;
+    // }
+    
+    if(td->state == DETACHED || td->state == JOINED) {
+        return 3;
+    }
+    if(td->state == JOINABLE) {
+        td->state = JOINED;
+        waitpid(thread,&status, 0);
+        if(&status == NULL)
+		    return 0;
+    } 
+   
+    return 0; //success
+}
 
 //------------------------------------------
 void* func1(void *args){
-    // sleep(5);
 
 	int i = 0;
 	while(i < 5){
@@ -106,20 +132,17 @@ void* func1(void *args){
 	return args;
 }	
 void* func2(void *args){
+    sleep(5);
    
 	printf("Hi, Sup\n");
-    dthread_exit(NULL);
+    // dthread_exit(NULL);
 	printf("Hi, Supss\n");
 
 	return args;
 }
 
 void* func3(void *args) {
-    // int i = 0;
-	// while(i < 5){
-	// 	printf("%d :Hello World!\n", i);
-	// 	i++;
-	// }
+   
     int a = 2, b = 3;
     printf("Sum is: %d", a+b);
     return args;
@@ -127,6 +150,8 @@ void* func3(void *args) {
 int main()
 {
 	dthread_t t1, t2, t3;
+    void *tret;
+
     pid_t p1;
     p1  = getpid();
     dthread *td;
@@ -134,13 +159,18 @@ int main()
 	dthread_init();
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
-	int a3 = dthread_create( &t3, func3 , NULL);	
+	int a3 = dthread_create( &t3, func3 , NULL);
+    int j1 = dthread_join(t1, &tret);	
+
+    int j2 = dthread_join(t2, &tret);	
+    int j3 = dthread_join(t3, &tret);	
+
+    
     printf("\nprinting thread details");
     show(threads);
 	printf("Wow %d,  %d %d", a1,a2,a3);
 	printf("r");
-    td = remove_last(threads);
-    show(threads);
+   
     
 	return 0;
 }
