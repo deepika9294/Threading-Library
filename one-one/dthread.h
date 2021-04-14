@@ -42,6 +42,8 @@ void dthread_exit(void *retval);
 dthread_t dthread_self(void);
 int dthread_join(dthread_t thread, void **retval);
 int dthread_kill(dthread_t thread, int sig);
+//temp function
+void show1();
 /*
 check if the thread has terminanted or not by retval:
 fetch the thread from the list and check if it joinable.
