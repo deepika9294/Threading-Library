@@ -81,7 +81,6 @@ void dthread_exit(void *retval) {
 
 dthread_t dthread_self(void) {
     dthread_t tid =   gettid();
-    printf("\nthreadid: %d",tid );
     //Question : do we store main thread too?
     //if main thread is stored.....
     /*
@@ -92,21 +91,19 @@ dthread_t dthread_self(void) {
 }
 
 int dthread_join(dthread_t thread, void **retval) {
-
+    // function shall suspend execution of the calling thread until the target thread terminates,
     dthread *td = get_node_by_tid(threads, thread);
+    dthread_t tid = dthread_self();
+    printf("Tid by self: %ld\n", tid);
+    if(tid == thread) {
+        printf("weird\n");
+        return EINVAL;
+    }
     if(td == NULL){
-        // printf("---***%ld",thread);
         return ESRCH;
     }
     int status, exit_status;
 
-
-    // need to update retval while creating it.
-
-    // if(td->retval == NULL) {
-    //     printf("RETVal: %ld", td->tid);
-    //     return 3;
-    // }
     
     if(td->state == DETACHED || td->state == JOINED) {
         return EINVAL;
@@ -117,8 +114,22 @@ int dthread_join(dthread_t thread, void **retval) {
         if(&status == NULL)
 		    return 0;
     } 
-   
+    if(retval) {
+        *retval = td->retval;
+    }
     return 0; //success
+}
+
+int dthread_kill(dthread_t thread, int sig) {
+    pid_t pid = getpid();
+    //if sig is 0, no signal is sent
+    if(sig == 0) {
+        return 0;
+    }
+    //check ig tgkill is required
+    int status = kill(thread,sig);
+    return status;
+
 }
 
 //------------------------------------------
@@ -132,9 +143,10 @@ void* func1(void *args){
 	return args;
 }	
 void* func2(void *args){
+	printf("Hi, Sup\n");
+
     sleep(5);
    
-	printf("Hi, Sup\n");
     dthread_exit(NULL);
 	printf("Hi, Supss\n");
 
@@ -142,7 +154,7 @@ void* func2(void *args){
 }
 
 void* func3(void *args) {
-   
+    sleep(5);
     int a = 2, b = 3;
     printf("Sum is: %d", a+b);
     return args;
@@ -160,12 +172,12 @@ int main()
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func3 , NULL);
-    int j1 = dthread_join(t1, &tret);	
+    // int j1 = dthread_join(t1, &tret);	
 
-    int j2 = dthread_join(t2, &tret);	
+    // int j2 = dthread_join(t2, &tret);	
     int j3 = dthread_join(t3, &tret);	
 
-    
+    dthread_kill(t2,SIGINT);
     printf("\nprinting thread details");
     show(threads);
 	printf("Wow %d,  %d %d", a1,a2,a3);
