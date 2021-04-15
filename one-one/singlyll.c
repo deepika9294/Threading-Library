@@ -47,17 +47,26 @@ void show(list *t) {
 dthread* remove_last(list *t) {
     node *temp;
     dthread *td;
-    if(t->tail == NULL) {
+    if(t->count == 0) {
         printf("\nEmpty list");
         return NULL;
     }
     temp = t->head;
-    while(temp->next != t->tail) {
+    if(t->count == 1) {
+        td = temp->td;
+        t->tail = NULL;
+        t->head = NULL;
+        t->count = t->count -1;
+        return td;
+    }
+    
+    while(temp->next != t->tail ) {
         temp = temp->next;
     }
     td = t->tail->td;
     t->tail = temp;
     t->tail->next = NULL;
+    t->count = t->count -1;
     return td;
 }
 dthread* get_node_by_tid(list *t, dthread_t tid) {

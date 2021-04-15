@@ -5,11 +5,24 @@ static list *threads;
 static pid_t main_thread_pid;
 
 void dthread_init() {
+    atexit(dthread_cleanup);
 
     threads = (list *)malloc(sizeof(list));
     main_thread_pid = getpid();
     init_threads(threads);
+}
 
+void dthread_cleanup() {
+    dthread *td;
+    int count = threads->count;
+    // freeing(individual threads)
+
+    for(int i =0; i< count; i++){
+        td = remove_last(threads);
+        free(td);
+    }
+    //final threads remove
+    free(threads);
 }
 
 int fn(void *arg) {
@@ -37,8 +50,12 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
         perror("Mmap error");
         exit(EXIT_FAILURE);
     }
-    stack_top = t->stack + THREAD_STACK_SIZE;
     
+    stack_top = t->stack + THREAD_STACK_SIZE;
+    // printf("STACK : %p\n",t->stack);
+    // printf("STACKT : %p",stack_top);
+    // printf("STACKSIZE: %d", THREAD_STACK_SIZE);
+
     t->args = args;
     t->start_routine = start_routine;
     t->state = JOINABLE;
@@ -140,4 +157,10 @@ int dthread_kill(dthread_t thread, int sig) {
 //temp function for debugging
 void show1() {
     show(threads);
+    // remove_last(threads);
+    // show(threads);
+    // remove_last(threads);
+    // remove_last(threads);
+    // show(threads);
+    // show(threads);
 }

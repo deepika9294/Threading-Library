@@ -13,6 +13,7 @@
 void* func1(void *args){
 
 	int i = 0;
+    sleep(5);
     
 	while(i < 5){
 		printf("%d :Hello World!\n", i);
@@ -31,7 +32,7 @@ void* func2(void *args){
 }
 
 void* func3(void *args) {
-    sleep(5);
+    // sleep(5);
     // int *d;
     // d[1] = 2;
     int a = 2, b = 3;
@@ -42,6 +43,7 @@ int main()
 {
 	dthread_t t1, t2, t3;
     void *tret;
+    // atexit(dthread_cleanup);
 
     pid_t p1;
     p1  = getpid();
@@ -52,13 +54,13 @@ int main()
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func3 , NULL);
     int j1 = dthread_join(t1, &tret);	
-    dthread_exit(NULL);
+    // dthread_exit(NULL);
 
     int j2 = dthread_join(t2, &tret);	
     int j3 = dthread_join(t3, &tret);	
-    show1();
+    // show1();
     // dthread_kill(t2,SIGINT);
-    // printf("\nprinting thread details");
+    printf("\nprinting thread details");
     // show(threads);
 	// printf("Wow %d,  %d %d, %p", j1,j2,j3, tret);
    

@@ -11,7 +11,7 @@
 #include <sched.h>
 #include <sys/mman.h>
 
-#define THREAD_STACK_SIZE (1024 * 128)
+#define THREAD_STACK_SIZE (1024 * 64)
 #define MAX_THREAD 20
 
 #define JOINABLE 1
@@ -37,11 +37,11 @@ int fn(void *arg);
 
 void dthread_init(void);
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args);
-void dthread_exit(void *return_value);
 void dthread_exit(void *retval);
 dthread_t dthread_self(void);
 int dthread_join(dthread_t thread, void **retval);
 int dthread_kill(dthread_t thread, int sig);
+void dthread_cleanup(void);
 //temp function
 void show1();
 /*
