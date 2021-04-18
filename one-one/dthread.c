@@ -154,6 +154,36 @@ int dthread_kill(dthread_t thread, int sig) {
     return status;
 
 }
+
+/*
+ * Reffered concept from the link: https://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html 
+ */
+int dthread_spin_init(dthread_spinlock_t *lock) {
+    *lock = 0;
+    return 0;    
+}
+int dthread_spin_lock(dthread_spinlock_t *lock){
+    while(__sync_lock_test_and_set(lock,1));
+	return 0;
+
+}
+//returning EBUSY when lock is being held by other thread 
+int dthread_spin_trylock(dthread_spinlock_t *lock) {
+    if(__sync_lock_test_and_set(lock,1)) {
+        return EBUSY;
+    }
+    else {
+        return 0;
+    }
+}
+int dthread_spin_unlock(dthread_spinlock_t *lock) {
+    if(*lock == 1) {
+        __sync_lock_release(lock,0);
+        return 0;
+    }
+    return EINVAL;
+}
+
 //temp function for debugging
 void show1() {
     show(threads);

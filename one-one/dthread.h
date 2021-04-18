@@ -19,7 +19,7 @@
 #define DETACHED 3
 
 typedef unsigned long int dthread_t;
-
+typedef volatile unsigned int dthread_spinlock_t;
 
 typedef struct dthread {
     dthread_t tid;
@@ -50,3 +50,9 @@ fetch the thread from the list and check if it joinable.
 on success returns 0 else err no
 wait for the thread to terminante.
 */
+
+//spin lock
+int dthread_spin_init(dthread_spinlock_t *lock);
+int dthread_spin_lock(dthread_spinlock_t *lock);
+int dthread_spin_trylock(dthread_spinlock_t *lock);
+int dthread_spin_unlock(dthread_spinlock_t *lock);
