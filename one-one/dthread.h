@@ -10,6 +10,11 @@
 #include <errno.h>
 #include <sched.h>
 #include <sys/mman.h>
+#include <linux/futex.h>
+#include <sys/time.h>
+#include <sys/syscall.h>
+
+
 
 #define THREAD_STACK_SIZE (1024 * 64)
 #define MAX_THREAD 20
@@ -19,7 +24,8 @@
 #define DETACHED 3
 
 typedef unsigned long int dthread_t;
-typedef volatile unsigned int dthread_spinlock_t;
+typedef unsigned int dthread_spinlock_t;
+typedef unsigned int dthread_mutex_t;
 
 typedef struct dthread {
     dthread_t tid;
@@ -56,3 +62,10 @@ int dthread_spin_init(dthread_spinlock_t *lock);
 int dthread_spin_lock(dthread_spinlock_t *lock);
 int dthread_spin_trylock(dthread_spinlock_t *lock);
 int dthread_spin_unlock(dthread_spinlock_t *lock);
+
+//mutex_lock
+
+int dthread_mutex_init(dthread_mutex_t *mutex);
+int dthread_mutex_lock(dthread_mutex_t *mutex);
+int dthread_mutex_unlock(dthread_mutex_t *mutex);
+

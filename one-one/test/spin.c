@@ -30,6 +30,7 @@ void *thread2(void *arg) {
 int main() {
 	dthread_t th1, th2; 
     dthread_init();
+	dthread_spin_init(&lock);
 	dthread_create(&th1, thread1, NULL);
 	dthread_create(&th2, thread2, NULL);
 	fprintf(stdout, "Ending main\n");

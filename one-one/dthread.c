@@ -184,6 +184,57 @@ int dthread_spin_unlock(dthread_spinlock_t *lock) {
     return EINVAL;
 }
 
+/*
+*Mutex locks
+*/
+
+
+int dthread_mutex_init(dthread_mutex_t *mutex) {
+    *mutex = 0;
+    return 0;
+}
+
+/*
+*   Logic of the code is referred from a git repo, link is pasted below:
+*   https://github.com/eliben/code-for-blog/blob/master/2018/futex-basics/mutex-using-futex.cpp
+*/
+
+
+/*
+* __sync_val_comapre_and_swap()--> compares the value pointed by mutex  with the second parameter
+* and if they are equal then mutex points to third parameter value and returns the original value pointed by mutex
+*/
+int dthread_mutex_lock(dthread_mutex_t *mutex) {
+    
+    unsigned int temp = __sync_val_compare_and_swap(mutex, 0, 1);
+    if(temp != 0) {
+        do  {
+            if((temp == 2) || __sync_val_compare_and_swap(mutex, 1, 2) != 0)
+                syscall(SYS_futex, mutex, FUTEX_WAIT_PRIVATE, 2, 0, 0, 0);
+        } while((temp = __sync_val_compare_and_swap(mutex, 0, 2)) != 0);
+    }
+    return 0;
+}
+
+
+/*
+*__sync_fetch_and_sub() --> *mutex = (*mutex - 2nd argument)
+function returns the initial value
+*
+*/
+
+int dthread_mutex_unlock(dthread_mutex_t *mutex) {
+    if(__sync_fetch_and_sub(mutex, 1) != 1)  {
+    *mutex = 0;
+    syscall(SYS_futex, mutex, FUTEX_WAKE_PRIVATE, 1, 0, 0, 0);
+   }
+   return 0;
+}
+
+
+
+
+
 //temp function for debugging
 void show1() {
     show(threads);
