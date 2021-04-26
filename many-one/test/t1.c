@@ -50,6 +50,7 @@ int main()
     dthread *td;
     printf("PID in main: %d\n", p1);
 	dthread_init();
+    // for(int i = 0; i < 80000000; i++);
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func3 , NULL);

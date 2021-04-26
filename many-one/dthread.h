@@ -6,6 +6,7 @@
 #include<sys/time.h>
 #include<errno.h>
 #include<sys/resource.h>
+#include<string.h>
 
 
 #define THREAD_STACK_SIZE (1024 * 64)
@@ -21,6 +22,8 @@
 #define TERMINATED 3
 #define WAITING 4
 
+//20msec
+#define TIME_INTERVAL 20000
 
 typedef unsigned long int dthread_t;
 typedef unsigned int dthread_spinlock_t;
@@ -35,20 +38,24 @@ typedef struct dthread {
     void *args;
     void* retval;   //on success returns NULL (create_thread)
     sigjmp_buf context;
-    int signal;
+    sigset_t signal;
     dthread_t next_tid;
 } dthread;
 
 
-int fn(void *arg);  //might not needed
+void fn(void);
+void scheduler();
+void start_timer(struct itimerval *timer);
+void stop_timer(struct itimerval *timer);
+
 
 void dthread_init(void);
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args);
-void dthread_exit(void *retval);
-dthread_t dthread_self(void);
-int dthread_join(dthread_t thread, void **retval);
-int dthread_kill(dthread_t thread, int sig);
-void dthread_cleanup(void);
+// void dthread_exit(void *retval);
+// dthread_t dthread_self(void);
+// int dthread_join(dthread_t thread, void **retval);
+// int dthread_kill(dthread_t thread, int sig);
+// void dthread_cleanup(void);
 
 void show1();
 
