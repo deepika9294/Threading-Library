@@ -27,7 +27,6 @@ void* func2(void *args){
 	printf("Hi, Sup\n");
 
     sleep(5);
-    dthread_exit(NULL);
 	printf("Hi, Supss\n");
 
 	return NULL;
@@ -44,6 +43,7 @@ void* func3(void *args) {
 int main()
 {
     void *tret;
+    // atexit(dthread_cleanup);
 
     pid_t p1;
     p1  = getpid();
@@ -53,18 +53,9 @@ int main()
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func3 , NULL);
-    dthread_kill(t1,SIGINT);
 
-    int j1 = dthread_join(t1, &tret);	
-    // dthread_exit(NULL);
-
-    int j2 = dthread_join(t2, &tret);	
-    int j3 = dthread_join(t3, &tret);	
-    // show1();
-    // dthread_kill(t2,SIGINT);
+    show1();
     printf("\nprinting thread details");
-    // show(threads);
-	// printf("Wow %d,  %d %d, %p", j1,j2,j3, tret);
    
     
 	return 0;
