@@ -52,7 +52,7 @@ void stop_timer(struct itimerval *timer);
 
 void dthread_init(void);
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args);
-// void dthread_exit(void *retval);
+void dthread_exit(void *retval);
 int dthread_join(dthread_t thread, void **retval);
 // int dthread_kill(dthread_t thread, int sig);
 // void dthread_cleanup(void);

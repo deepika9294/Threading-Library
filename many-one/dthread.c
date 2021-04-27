@@ -45,34 +45,32 @@ void dthread_init(void) {
     //initialising signal for timer
     struct sigaction sa;
     sigset_t mask;
-	sigfillset(&mask);
+    sigemptyset(&mask);
+    sigaddset(&mask,SIGVTALRM);
     //whenever sigvtalrm is raised, scheduler is called
     sa.sa_handler = &scheduler;
     sa.sa_flags = 0;
     sa.sa_mask = mask;
     sigaction (SIGVTALRM, &sa, NULL);
-
     start_timer(&timer);
 
 }
-
 
 void fn(void) {
     td_cur->retval = td_cur->start_routine(td_cur->args);
     td_cur->status = TERMINATED;
     raise(SIGVTALRM);
-    //the thread needs to be exited
     return;
 }
 
 
 void scheduler(int sig) {
     stop_timer(&timer);
+    dthread_t temp_tid = td_cur->tid;
     if(sigsetjmp(td_cur->context, 1) == 1) {
-        // printf("check");
         return;
     }
-
+    
     enqueue(threads, td_cur);
     if(td_cur->status == RUNNING) {
         td_cur->status = READY;
@@ -93,6 +91,9 @@ void scheduler(int sig) {
         else if(temp->status == TERMINATED) {
             enqueue(threads, temp);
         }
+    }
+    if(td_cur->tid == temp_tid) {
+        exit(0);
     }
 
     start_timer(&timer);
@@ -120,8 +121,6 @@ void stop_timer(struct itimerval *timer) {
 
 
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args) {
-
-    stop_timer(&timer);
 
     struct dthread *t;
     t = (dthread *) malloc(sizeof(dthread));
@@ -158,33 +157,47 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     // printf("%p", t->context);
 
     enqueue(threads, t);
-    start_timer(&timer);
+
     return 0;
 }
 
 int dthread_join(dthread_t thread, void **retval) {
 
-    //find the node having that particular thread
-    printf("Thread id%d\n",thread);
+    //find the node having that particular thread id
+    
     dthread *temp;
     temp = get_node_by_tid(threads,thread);
     if(temp == NULL) {
+        return ESRCH;
+    }
+
+    //check if the thread is joinable or not
+    if(temp->state == DETACHED || temp->state == JOINED) {
         return EINVAL;
     }
-    //othewise loop until the process is completed
+    temp->state = JOINED;
+    //othewise loop until the process is terminated
     while(1) {
         if (temp->status == TERMINATED) {
             break;
         }
     }
+    //updating the retval  with the routine return value
     if(retval) {
         *retval = temp->retval;
     }
-
     return 0;
 }
 
-
+void dthread_exit(void *retval) {
+    // changing the retval for the current running thread.
+    td_cur->retval = retval;
+    td_cur->status = TERMINATED;
+    
+    //raising the signal to call the scheduler
+    raise(SIGVTALRM);
+    
+}
 
 int dthread_spin_init(dthread_spinlock_t *lock) {
     *lock = 0;
