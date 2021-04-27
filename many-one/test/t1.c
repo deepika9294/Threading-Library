@@ -25,8 +25,9 @@ void* func1(void *args){
 }	
 void* func2(void *args){
 	printf("Hi, Sup\n");
+    // for(int i = 0; i < 80000000; i++);
 
-    sleep(5);
+    // sleep(5);
 	printf("Hi, Supss\n");
 
 	return NULL;
@@ -50,10 +51,12 @@ int main()
     dthread *td;
     printf("PID in main: %d\n", p1);
 	dthread_init();
-    // for(int i = 0; i < 80000000; i++);
 	int a1 = dthread_create( &t1, func1 , NULL);
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func3 , NULL);
+
+    // sleep(2);
+    for(int i = 0; i < 80000000; i++);
 
     show1();
     printf("\nprinting thread details");
