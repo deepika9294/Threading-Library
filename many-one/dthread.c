@@ -162,6 +162,28 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     return 0;
 }
 
+int dthread_join(dthread_t thread, void **retval) {
+
+    //find the node having that particular thread
+    printf("Thread id%d\n",thread);
+    dthread *temp;
+    temp = get_node_by_tid(threads,thread);
+    if(temp == NULL) {
+        return EINVAL;
+    }
+    //othewise loop until the process is completed
+    while(1) {
+        if (temp->status == TERMINATED) {
+            break;
+        }
+    }
+    if(retval) {
+        *retval = temp->retval;
+    }
+
+    return 0;
+}
+
 
 
 int dthread_spin_init(dthread_spinlock_t *lock) {
