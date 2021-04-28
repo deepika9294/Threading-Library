@@ -150,6 +150,12 @@ int dthread_kill(dthread_t thread, int sig) {
     if(sig == 0) {
         return 0;
     }
+    //check if the thread exist
+    dthread *temp = get_node_by_tid(threads,thread);
+    if(temp == NULL) {
+        return ESRCH;
+    }
+
     int status = kill(thread,sig);
     return status;
 

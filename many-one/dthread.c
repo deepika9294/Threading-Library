@@ -38,7 +38,7 @@ void dthread_init(void) {
     td_cur->start_routine = NULL;
     td_cur->args = NULL;
     td_cur->retval = NULL;
-
+    td_cur->signal = -1;
     sigsetjmp(td_cur->context, 1);
 
 
@@ -96,6 +96,7 @@ void scheduler(int sig) {
         exit(0);
     }
 
+
     start_timer(&timer);
     siglongjmp(td_cur->context, 1);
 
@@ -132,7 +133,7 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
 	t->args = args;
     t->status = READY;
 	t->start_routine = start_routine;
-    sigemptyset(&t->signal);
+    t->signal = -1;
     t->state = JOINABLE;
 
 
@@ -172,7 +173,7 @@ int dthread_join(dthread_t thread, void **retval) {
     }
 
     //check if the thread is joinable or not
-    if(temp->state == DETACHED || temp->state == JOINED) {
+    if(temp->state == JOINED) {
         return EINVAL;
     }
     temp->state = JOINED;
@@ -198,6 +199,27 @@ void dthread_exit(void *retval) {
     raise(SIGVTALRM);
     
 }
+
+int dthread_kill(dthread_t thread, int sig) {
+    //no signal
+    if(sig == 0) {
+        return 0;
+    }
+    //invalid signal
+    if(sig < 0 || sig > 65) {
+        return EINVAL;
+    }
+
+    // check if current thread id is same as the thread passed
+
+    int status = -1;
+    if(thread == td_cur->tid) {
+        status = raise(sig);
+    }
+   
+    return status;
+}
+
 
 int dthread_spin_init(dthread_spinlock_t *lock) {
     *lock = 0;

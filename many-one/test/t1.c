@@ -16,7 +16,6 @@ dthread_t t1, t2, t3;
 void* func1(void *args){
 
 	int i = 0;
-    // sleep(5);
 	while(i < 5){
 		printf("%d :Hello World!\n", i);
 		i++;
@@ -25,7 +24,7 @@ void* func1(void *args){
 }	
 void* func2(void *args){
 	printf("Hi, Sup\n");
-    for(int i = 0; i < 80000000; i++);
+    // for(int i = 0; i < 80000000; i++);
 
     // sleep(5);
 	printf("Hi, Supss\n");
@@ -41,6 +40,14 @@ void* func3(void *args) {
     printf("Sum is: %d", a+b);
     return (void *)4;
 }
+void *func4(void *arg) {
+
+    dthread_kill(t3, SIGUSR1);
+    while(1);
+    return (void *)8;
+}
+
+
 int main()
 {
     void *tret;
@@ -52,15 +59,17 @@ int main()
     printf("PID in main: %d\n", p1);
 	dthread_init();
 	int a1 = dthread_create( &t1, func1 , NULL);
+
 	int a2 = dthread_create( &t2, func2 , NULL);	
-	int a3 = dthread_create( &t3, func3 , NULL);
+	int a3 = dthread_create( &t3, func4 , NULL);
+    
+
     int j1 = dthread_join(t1, &tret);	
     int j2 = dthread_join(t2, &tret);	
     int j3 = dthread_join(t3, &tret);	
     // sleep(2);
     // for(int i = 0; i < 80000000; i++);
 
-    show1();
     printf("\nprinting thread details");
 	printf("Wow %d,  %d %d, %p", j1,j2,j3, tret);
    
