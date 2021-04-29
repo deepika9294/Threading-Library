@@ -21,7 +21,6 @@
 
 #define JOINABLE 1
 #define JOINED 2
-#define DETACHED 3
 
 typedef unsigned long int dthread_t;
 typedef unsigned int dthread_spinlock_t;
@@ -30,11 +29,11 @@ typedef unsigned int dthread_mutex_t;
 typedef struct dthread {
     dthread_t tid;
     pid_t pid;
-    int state; //detached, joinable, joined
+    int state; //joinable, joined
     char *stack;
     void *(*start_routine)(void *);
     void *args;
-    void* retval;   //on success returns NULL (create_thread)
+    void* retval;   
     
 } dthread;
 
@@ -50,12 +49,7 @@ int dthread_kill(dthread_t thread, int sig);
 void dthread_cleanup(void);
 //temp function
 void show1();
-/*
-check if the thread has terminanted or not by retval:
-fetch the thread from the list and check if it joinable.
-on success returns 0 else err no
-wait for the thread to terminante.
-*/
+
 
 //spin lock
 int dthread_spin_init(dthread_spinlock_t *lock);

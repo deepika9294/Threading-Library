@@ -41,9 +41,8 @@ void* func3(void *args) {
     return (void *)4;
 }
 void *func4(void *arg) {
+    for(int i = 0; i < 800000000; i++);
 
-    dthread_kill(t3, SIGUSR1);
-    while(1);
     return (void *)8;
 }
 
@@ -67,6 +66,8 @@ int main()
     int j1 = dthread_join(t1, &tret);	
     int j2 = dthread_join(t2, &tret);	
     int j3 = dthread_join(t3, &tret);	
+    dthread_kill(t3, SIGSTOP);
+
     // sleep(2);
     // for(int i = 0; i < 80000000; i++);
 

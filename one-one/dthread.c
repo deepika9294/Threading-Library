@@ -17,7 +17,7 @@ void dthread_cleanup() {
     int count = threads->count;
     // freeing(individual threads)
 
-    for(int i =0; i< count; i++){
+    for(int i = 0; i < count; i++){
         td = remove_last(threads);
         free(td);
     }
@@ -79,7 +79,6 @@ void dthread_exit(void *retval) {
     dthread *td = get_node_by_tid(threads, tid);
     
     if(main_thread_pid == tid) {
-        // printf("arey waah");
         // fetch all the tid and pass it to join function 
         node *ptr;
         if(threads->head == NULL) {
@@ -126,7 +125,7 @@ int dthread_join(dthread_t thread, void **retval) {
 
     int status, exit_status;
     
-    if(td->state == DETACHED || td->state == JOINED) {
+    if(td->state == JOINED) {
         return EINVAL;
     }
 
@@ -149,6 +148,10 @@ int dthread_kill(dthread_t thread, int sig) {
     //if sig is 0, no signal is sent
     if(sig == 0) {
         return 0;
+    }
+
+    if(sig < 0 || sig > 64) {
+        return EINVAL;
     }
     //check if the thread exist
     dthread *temp = get_node_by_tid(threads,thread);
@@ -239,15 +242,8 @@ int dthread_mutex_unlock(dthread_mutex_t *mutex) {
 
 
 
-
-
 //temp function for debugging
 void show1() {
     show(threads);
-    // remove_last(threads);
-    // show(threads);
-    // remove_last(threads);
-    // remove_last(threads);
-    // show(threads);
-    // show(threads);
+   
 }

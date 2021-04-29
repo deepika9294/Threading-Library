@@ -16,13 +16,11 @@
 
 #define JOINABLE 1
 #define JOINED 2
-#define DETACHED 3
 
 
 #define READY 1
 #define RUNNING 2
 #define TERMINATED 3
-#define WAITING 4
 
 //20msec
 #define ALARM 20000
@@ -33,14 +31,14 @@ typedef unsigned int dthread_mutex_t;
 
 typedef struct dthread {
     dthread_t tid;
-    int state;  //joinable joined, detached
-    int status; //ready, running,terminated, waiting
+    int state;  //joinable, joined
+    int status; //ready, running,terminated,
     char *stack;    //stack_base address
     void *(*start_routine)(void *);
     void *args;
-    void* retval;   //on success returns NULL (create_thread)
+    void* retval;   
     sigjmp_buf context;
-    int signal;
+    int signal; 
 } dthread;
 
 
@@ -55,7 +53,7 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
 void dthread_exit(void *retval);
 int dthread_join(dthread_t thread, void **retval);
 int dthread_kill(dthread_t thread, int sig);
-// void dthread_cleanup(void);
+void dthread_cleanup(void);
 
 void show1();
 

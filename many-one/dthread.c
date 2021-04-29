@@ -52,8 +52,19 @@ void dthread_init(void) {
     sa.sa_flags = 0;
     sa.sa_mask = mask;
     sigaction (SIGVTALRM, &sa, NULL);
+    atexit(dthread_cleanup);
     start_timer(&timer);
 
+}
+void dthread_cleanup() {
+    dthread *td;
+    int count = threads->count;
+    for(int i = 0; i < count; i++){
+        td = dequeue(threads);
+        free(td);
+    }
+    //final threads remove
+    free(threads);
 }
 
 void fn(void) {
@@ -95,7 +106,11 @@ void scheduler(int sig) {
     if(td_cur->tid == temp_tid) {
         exit(0);
     }
-
+    if(td_cur->signal != -1) {
+        printf("yeas");
+        raise(td_cur->signal);
+        td_cur->signal = -1;
+    }
 
     start_timer(&timer);
     siglongjmp(td_cur->context, 1);
@@ -106,8 +121,8 @@ void scheduler(int sig) {
 void start_timer(struct itimerval *timer) {
     timer->it_value.tv_sec = 0;
     timer->it_value.tv_usec = ALARM;
-	timer->it_interval.tv_sec = 0;
-	timer->it_interval.tv_usec = ALARM;
+    timer->it_interval.tv_sec = 0;
+    timer->it_interval.tv_usec = ALARM;
     setitimer(ITIMER_VIRTUAL, timer, 0);
 }
 
@@ -115,8 +130,8 @@ void start_timer(struct itimerval *timer) {
 void stop_timer(struct itimerval *timer) {
     timer->it_value.tv_sec = 0;
     timer->it_value.tv_usec = 0;
-	timer->it_interval.tv_sec = 0;
-   	timer->it_interval.tv_usec = 0;
+    timer->it_interval.tv_sec = 0;
+    timer->it_interval.tv_usec = 0;
     setitimer(ITIMER_VIRTUAL, timer, 0);
 }
 
@@ -126,16 +141,12 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     struct dthread *t;
     t = (dthread *) malloc(sizeof(dthread));
 
-    //for checking if the timer is raised or not
-    // raise(SIGVTALRM);
-
     t->tid = tid_count++;
 	t->args = args;
     t->status = READY;
 	t->start_routine = start_routine;
     t->signal = -1;
     t->state = JOINABLE;
-
 
     // allocate the memory for stack with mmap
 
@@ -172,11 +183,12 @@ int dthread_join(dthread_t thread, void **retval) {
         return ESRCH;
     }
 
-    //check if the thread is joinable or not
+    //check if the thread is already joined or not
     if(temp->state == JOINED) {
         return EINVAL;
     }
     temp->state = JOINED;
+
     //othewise loop until the process is terminated
     while(1) {
         if (temp->status == TERMINATED) {
@@ -195,7 +207,7 @@ void dthread_exit(void *retval) {
     td_cur->retval = retval;
     td_cur->status = TERMINATED;
     
-    //raising the signal to call the scheduler
+    //raising the signal to call the scheduler 
     raise(SIGVTALRM);
     
 }
@@ -206,7 +218,7 @@ int dthread_kill(dthread_t thread, int sig) {
         return 0;
     }
     //invalid signal
-    if(sig < 0 || sig > 65) {
+    if(sig < 0 || sig > 64) {
         return EINVAL;
     }
 
@@ -215,6 +227,15 @@ int dthread_kill(dthread_t thread, int sig) {
     int status = -1;
     if(thread == td_cur->tid) {
         status = raise(sig);
+    }
+
+    //otherwise store it into the thread structure to raise it later
+    else {
+        dthread *temp = get_node_by_tid(threads, thread);
+        if(temp != NULL) {
+            printf("what");
+            temp->signal = sig;
+        }
     }
    
     return status;
