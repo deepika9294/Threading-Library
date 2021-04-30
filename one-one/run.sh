@@ -1,0 +1,2 @@
+make
+./matrix_test

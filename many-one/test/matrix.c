@@ -127,9 +127,6 @@ int main() {
     args[2].row_start = args[1].row_end + 1;
     args[2].row_end = a.r - 1;
 
-    // debugging 
-    // for(int i = 0; i < 3; i++)
-    //     printf("%d %d \n", args[i].row_start, args[i].row_end);
  
     // creating three different threads
     for(int i = 0; i < 3; i++) {
