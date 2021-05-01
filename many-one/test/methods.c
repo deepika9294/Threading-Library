@@ -170,8 +170,7 @@ int main() {
             printf("**PASSED**: Thread kill test on invalid thread\n");
         }
     }
-    k = dthread_kill(t1[5], SIGTSTP);
-    
+    k = dthread_kill(t1[5], SIGKILL);
     if(c1 == 0) {
         check = testing(k, 0);
         if(check == 0) {
@@ -181,27 +180,9 @@ int main() {
             printf("**PASSED**: Valid Signal Test\n");
         }
     }
-
-    c1 = dthread_create( &t1[6], cont, NULL);
-    //stopping the thread
-    k = dthread_kill(t1[6], SIGTSTP);
-    //restarting again
-    int k2 = dthread_kill(t1[6], SIGCONT);
-    sleep(1);
-    if(c1 == 0) {
-        check = testing(signal_counter, 1);
-        if(check == 0) {
-            printf("**FAILED**: SIGCONT handling test\n");
-        }
-        else {
-            printf("**PASSED**: SIGCONT handling test\n");
-        }
-    }
-    j1 = dthread_join(t1[5], &tret);
-    j1 = dthread_join(t1[6], &tret);
-
-    
     printf("\n-----------------------------EXITING METHODS TEST-----------------------------\n\n");
+
+    j1 = dthread_join(t1[5], &tret);
     
     dthread_exit(NULL);
     return 0;

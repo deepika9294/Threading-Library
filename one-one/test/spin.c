@@ -1,7 +1,7 @@
 /*  SpinLock test
 */
 
-//Code taken from Abhijit Sir's reseources from Race problems
+//Code taken from Abhijit Sir's resources from Race problems
 
 #include <stdio.h>
 #include "../dthread.h"

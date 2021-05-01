@@ -1,11 +1,9 @@
 /*  SpinLock test
 */
 
-//Code taken from Abhijit Sir's reseources from Race problems
+//Code taken from Abhijit Sir's resources from Race problems
 
 #include <stdio.h>
-#include <sys/time.h>
-#include <unistd.h>
 #include "../dthread.h"
 
 long c = 0, c1 = 0, c2 = 0, run = 1;
@@ -14,7 +12,6 @@ void *thread1(void *arg) {
 	while(run == 1) {
 		dthread_spin_lock(&lock);
         c++;
-
 		dthread_spin_unlock(&lock);
 
 		c1++;
@@ -34,13 +31,21 @@ int main() {
 	dthread_t th1, th2; 
     dthread_init();
 	dthread_spin_init(&lock);
+    printf("\n\n-------------------------SPIN LOCK TEST FOR RACE PROBLEM -------------------------\n\n");
+
 	dthread_create(&th1, thread1, NULL);
 	dthread_create(&th2, thread2, NULL);
-	fprintf(stdout, "Ending main\n");
-    for(int i = 0; i < 200000000; i++);
+	sleep(2);
 	run = 0;
 	dthread_join(th1, NULL);
 	dthread_join(th2, NULL);
-	fprintf(stdout, "c = %ld c1+c2 = %ld c1 = %ld c2 = %ld \n", c, c1+c2, c1, c2);
+	if(c == c1 + c2) {
+		printf("**PASSED**: Spin lock test\n");
+	}
+	else {
+		printf("**FAILED**: Spin lock test\n");
+	}
+    printf("\n--------------------------------EXITING SPIN TEST---------------------------------\n\n");
+	
     return 0;
 }

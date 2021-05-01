@@ -107,7 +107,6 @@ void scheduler(int sig) {
         exit(0);
     }
     if(td_cur->signal != -1) {
-        printf("yeas");
         raise(td_cur->signal);
         td_cur->signal = -1;
     }
@@ -178,6 +177,9 @@ int dthread_join(dthread_t thread, void **retval) {
     //find the node having that particular thread id
     
     dthread *temp;
+    if(thread == td_cur->tid) {
+        return EDEADLK;
+    }
     temp = get_node_by_tid(threads,thread);
     if(temp == NULL) {
         return ESRCH;
@@ -233,8 +235,11 @@ int dthread_kill(dthread_t thread, int sig) {
     else {
         dthread *temp = get_node_by_tid(threads, thread);
         if(temp != NULL) {
-            printf("what");
             temp->signal = sig;
+            status = 0;
+        }
+        else {
+            status = ESRCH;
         }
     }
    
