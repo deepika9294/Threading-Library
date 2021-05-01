@@ -7,7 +7,7 @@ static dthread_spinlock_t lock;
 
 
 void dthread_init() {
-    atexit(dthread_cleanup);
+
     dthread_spin_init(&lock);
 
     threads = (list *)malloc(sizeof(list));
@@ -16,16 +16,20 @@ void dthread_init() {
 }
 
 void dthread_cleanup() {
+    dthread_spin_lock(&lock);
     dthread *td;
+    
     int count = threads->count;
-    // freeing(individual threads)
 
     for(int i = 0; i < count; i++){
         td = remove_last(threads);
-        free(td);
+        if(td != NULL)
+            free(td);
     }
     //final threads remove
     free(threads);
+    dthread_spin_unlock(&lock);
+
 }
 
 int fn(void *arg) {
@@ -37,14 +41,13 @@ int fn(void *arg) {
 }
 
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args) {
-    // allocate memory
+
     dthread_spin_lock(&lock);
     struct dthread *t;
     t = (dthread *) malloc(sizeof(dthread));
     if(t == NULL) {
         dthread_spin_unlock(&lock);
-        perror("malloc");
-        exit(EXIT_FAILURE);
+        return -1;        
     }
     int clone_return;
     char *stack_top;
@@ -53,14 +56,10 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     t->stack = mmap(NULL, THREAD_STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (t->stack == MAP_FAILED) {
         dthread_spin_unlock(&lock);
-        perror("Mmap error");
-        exit(EXIT_FAILURE);
+        return EAGAIN;
     }
     
     stack_top = t->stack + THREAD_STACK_SIZE;
-    // printf("STACK : %p\n",t->stack);
-    // printf("STACKT : %p",stack_top);
-    // printf("STACKSIZE: %d", THREAD_STACK_SIZE);
 
     t->args = args;
     t->start_routine = start_routine;
@@ -68,16 +67,13 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     clone_return = clone(fn, stack_top, SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, (void *)t);
     if(clone_return == -1) {
         dthread_spin_unlock(&lock);
-        perror("clone");
-        exit(EXIT_FAILURE);
+        return EINVAL;
     }
     t->tid = clone_return;      //assigning the thread_id
-    t->pid = getpid();
 
     insert_beg(threads, t);
     *thread = t->tid;
     dthread_spin_unlock(&lock);
-
     return 0;
 }
 
@@ -94,18 +90,24 @@ void dthread_exit(void *retval) {
             printf("\nEmpty");
             return;
         }
+        dthread_spin_lock(&lock);
         ptr = threads->head;
+        dthread_spin_unlock(&lock);
+
         while(ptr != NULL) {
-            dthread_join(ptr->td->tid, NULL);
+            if(ptr->td->state == JOINABLE) {
+                dthread_join(ptr->td->tid, NULL);
+            }
             ptr = ptr->next;
         }
+        dthread_cleanup();
         exit(0);
     }
     if(td == NULL) {
         return;
     }
+    
     td->retval = retval;
-
     exit(0);
 }
 
@@ -122,20 +124,22 @@ int dthread_join(dthread_t thread, void **retval) {
     dthread_spin_lock(&lock);
     dthread *td = get_node_by_tid(threads, thread);
     dthread_t tid = dthread_self();
+    dthread_spin_unlock(&lock);
+
     //join calling from same calling function
     if(tid == thread) {
-        dthread_spin_unlock(&lock);
-        return EINVAL;
+        // dthread_spin_unlock(&lock);
+        return EDEADLK;
     }
 
     if(td == NULL){
-        dthread_spin_unlock(&lock);
+        // dthread_spin_unlock(&lock);
         return ESRCH;
     }
 
     
     if(td->state == JOINED) {
-        dthread_spin_unlock(&lock);
+        // dthread_spin_unlock(&lock);
         return EINVAL;
     }
     int status;
@@ -144,7 +148,7 @@ int dthread_join(dthread_t thread, void **retval) {
         td->state = JOINED;
         waitpid(thread,&status, 0);
         if(status == -1) {
-            dthread_spin_unlock(&lock);
+            // dthread_spin_unlock(&lock);
             perror("waitpid");
             exit(EXIT_FAILURE);
         }
@@ -153,7 +157,7 @@ int dthread_join(dthread_t thread, void **retval) {
     if(retval) {
         *retval = td->retval;
     }
-    dthread_spin_unlock(&lock);
+    // dthread_spin_unlock(&lock);
     return 0; //success
 }
 
@@ -168,9 +172,12 @@ int dthread_kill(dthread_t thread, int sig) {
     }
     //check if the thread exist
     dthread *temp = get_node_by_tid(threads,thread);
+
     if(temp == NULL) {
         return ESRCH;
     }
+    
+    temp->state = SIGNAL;
     int status = kill(thread,sig);
     return status;
 

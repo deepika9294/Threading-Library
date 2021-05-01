@@ -13,14 +13,14 @@
 #include <linux/futex.h>
 #include <sys/time.h>
 #include <sys/syscall.h>
-
+#include <signal.h>
 
 
 #define THREAD_STACK_SIZE (1024 * 64)
-#define MAX_THREAD 20
 
 #define JOINABLE 1
 #define JOINED 2
+#define SIGNAL 3
 
 typedef unsigned long int dthread_t;
 typedef unsigned int dthread_spinlock_t;
@@ -28,7 +28,6 @@ typedef unsigned int dthread_mutex_t;
 
 typedef struct dthread {
     dthread_t tid;
-    pid_t pid;
     int state; //joinable, joined
     char *stack;
     void *(*start_routine)(void *);

@@ -61,12 +61,12 @@ int main()
 
 	int a2 = dthread_create( &t2, func2 , NULL);	
 	int a3 = dthread_create( &t3, func4 , NULL);
-    
+    dthread_kill(t3, SIGTSTP);
+
 
     int j1 = dthread_join(t1, &tret);	
     int j2 = dthread_join(t2, &tret);	
     int j3 = dthread_join(t3, &tret);	
-    dthread_kill(t3, SIGSTOP);
 
     // sleep(2);
     // for(int i = 0; i < 80000000; i++);

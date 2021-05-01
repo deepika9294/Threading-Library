@@ -48,7 +48,7 @@ void read_input(matrix *t, FILE *file) {
 }
 
 void print_matrix(matrix *t) {
-    printf("MATRIX TEST\n");
+    printf("\n\n----------------------------------MATRIX TEST -------------------------------\n\n");
     printf("%d %d\n",t->r,t->c);
     for(int i = 0; i < t->r; i++) {
         for(int j = 0; j < t->c; j++) {
@@ -56,6 +56,8 @@ void print_matrix(matrix *t) {
         }
         printf("\n");
     }
+    printf("\n\n-----------------------------ENDING MATRIX TEST --------------------------------\n\n");
+
 }
 
 // freeing the space

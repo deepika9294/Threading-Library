@@ -38,7 +38,7 @@ void show(list *t) {
     }
     ptr = t->head;
     while(ptr != NULL) {
-        printf("\nTID: %ld,  PID: %d", ptr->td->tid, ptr->td->pid);
+        printf("\nTID: %ld", ptr->td->tid);
         ptr = ptr->next;
     }
     printf("\nTOTAL: %d",t->count);
