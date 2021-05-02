@@ -9,6 +9,7 @@ echo "${CYAN}\n\n\n####### ONE-ONE TESTING BEGINS #######${ENDCOLOR}\n";
 
 ./methods_test
 ./matrix_test
+./search_test
 ./spin_test
 ./mutex1_test
 ./mutex2_test

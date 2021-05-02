@@ -10,5 +10,6 @@ echo "${CYAN}\n\n\n####### MANY-ONE TESTING BEGINS #######${ENDCOLOR}\n";
 ./methods_test
 ./spin_test
 ./matrix_test
+./search_test
 
 echo "\n\n${CYAN}####### MANY-ONE TESTING FINISHED #######${ENDCOLOR}\n";
