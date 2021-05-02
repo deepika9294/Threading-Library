@@ -156,7 +156,7 @@ int main() {
     dthread_join(t1[8],&tret);
 
     if(c1 == 0) {
-        check = testing((intptr_t)tret, 42);
+        check = testing(run, 0);
         if(check == 0) {
             printf("**FAILED**: Signal Handler test case for infinite loop\n");
         }
@@ -164,7 +164,6 @@ int main() {
             printf("**PASSED**: Signal Handler test case for infinite loop\n");
         }
     }
-
 
     c1 = dthread_create( &t1[5], looping, NULL);
     // j1 = dthread_join(t1[5], &tret);
