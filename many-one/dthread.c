@@ -1,10 +1,11 @@
 #include "queue.h"
 
+//global variables, which are accesed by all the methods
 
-static queue *threads;
-static dthread *td_cur;
-struct itimerval timer;
-static dthread_t tid_count = 0;
+static queue *threads;  //list of all the threads
+static dthread *td_cur; //detials of thread which is running
+struct itimerval timer; 
+static dthread_t tid_count = 0; //used to assign thread id's
 
 
 /*
@@ -25,6 +26,12 @@ static long int i64_ptr_mangle(long int p) {
     return ret;
 }
 
+/*
+*   Init function: before using any of the other methods user has to call this method
+*   It initializes the global threads list and signal.
+*   Initializes the main thread details
+*   Timer is started for raising sigvtalrm signal which further will call scheduler
+*/
 
 void dthread_init(void) {
     threads = (queue *)malloc(sizeof(queue));
@@ -56,6 +63,11 @@ void dthread_init(void) {
     start_timer(&timer);
 
 }
+
+/*
+*   This method is used to clean all the threads before exiting
+*/
+
 void dthread_cleanup() {
     dthread *td;
     int count = threads->count;
@@ -67,6 +79,10 @@ void dthread_cleanup() {
     free(threads);
 }
 
+/*
+*   Wrapper function to run different thread routines based on current thread details
+*/
+
 void fn(void) {
     td_cur->retval = td_cur->start_routine(td_cur->args);
     td_cur->status = TERMINATED;
@@ -74,6 +90,14 @@ void fn(void) {
     return;
 }
 
+/*
+*   Whenever sigvtalrm is raised scheduler is called,
+*   here current running thread thread is enqueued,
+*   and is replaced by new thread details, which is not terminated
+*   If no such valid threads found in the queue, program exits
+*   Before jumping to the thread context, 
+*       we check if the thread has any signals to be raised
+*/
 
 void scheduler(int sig) {
     stop_timer(&timer);
@@ -86,7 +110,6 @@ void scheduler(int sig) {
     if(td_cur->status == RUNNING) {
         td_cur->status = READY;
     }
-    // show(threads);
 
     //getting the next thread details:
     //in loop, to check if the thread is already terminated or not
@@ -116,6 +139,9 @@ void scheduler(int sig) {
 
 }
 
+/*
+*   Starting the timer
+*/
 
 void start_timer(struct itimerval *timer) {
     timer->it_value.tv_sec = 0;
@@ -125,6 +151,9 @@ void start_timer(struct itimerval *timer) {
     setitimer(ITIMER_VIRTUAL, timer, 0);
 }
 
+/*
+*   Stopping the timer, which means now no more sigvtalrm is raised
+*/
 
 void stop_timer(struct itimerval *timer) {
     timer->it_value.tv_sec = 0;
@@ -134,6 +163,13 @@ void stop_timer(struct itimerval *timer) {
     setitimer(ITIMER_VIRTUAL, timer, 0);
 }
 
+/*
+*   For thread stack allocation mmap() is used
+*   dthread_t thread value is changed with respective tid for user side
+*   Saving the threads context
+*   Changing the stack,base pointer and program counter for that thread
+*   Adding it to the threads list
+*/
 
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args) {
 
@@ -160,7 +196,7 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     //assigning the thread with the tid
     *thread = t->tid;
 
-    //saving the context and changing the stack pointer and program counter
+    //saving the context and changing the stack pointer, base pointer and program counter
     sigsetjmp(t->context, 1);
     t->context[0].__jmpbuf[6] = i64_ptr_mangle((long int) t->stack + THREAD_STACK_SIZE - sizeof(long int));
     t->context[0].__jmpbuf[1] = i64_ptr_mangle((long int) t->stack + THREAD_STACK_SIZE - sizeof(long int));
@@ -171,6 +207,12 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
 
     return 0;
 }
+
+/*
+*   All error checks are done before waiting for the thread specified to terminate
+*   while() with some condition is used for waiting purpose
+*   retval passed as argument is modified by the actual retval of the thread
+*/
 
 int dthread_join(dthread_t thread, void **retval) {
 
@@ -204,6 +246,10 @@ int dthread_join(dthread_t thread, void **retval) {
     return 0;
 }
 
+/*
+*   Status is changed and retval is updated, also sigvtalrm is raised to get the new thread
+*/
+
 void dthread_exit(void *retval) {
     // changing the retval for the current running thread.
     td_cur->retval = retval;
@@ -213,6 +259,12 @@ void dthread_exit(void *retval) {
     raise(SIGVTALRM);
     
 }
+
+/*
+*   error checking is done
+*   see if it the thread id passed is of the current running thread
+*   if yes then raise signal, otherwise append it to the threads structure, to raise it later
+*/
 
 int dthread_kill(dthread_t thread, int sig) {
     //no signal
@@ -246,6 +298,10 @@ int dthread_kill(dthread_t thread, int sig) {
     return status;
 }
 
+/*
+*   Spin lock is implemeted with the help of __sync_lock_test_and_set
+*   and __sync_lock_release methods
+*/
 
 int dthread_spin_init(dthread_spinlock_t *lock) {
     *lock = 0;
@@ -272,7 +328,6 @@ int dthread_spin_unlock(dthread_spinlock_t *lock) {
     }
     return EINVAL;
 }
-
 
 void show1() {
     show(threads);

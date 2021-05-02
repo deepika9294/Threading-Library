@@ -12,17 +12,15 @@
 
 
 #define THREAD_STACK_SIZE (1024 * 64)
-#define MAX_THREAD 20
 
 #define JOINABLE 1
 #define JOINED 2
-
 
 #define READY 1
 #define RUNNING 2
 #define TERMINATED 3
 
-//20msec
+//SIGVTALRM is raised after every 2msec
 #define ALARM 2000
 
 typedef unsigned long int dthread_t;
@@ -55,6 +53,7 @@ int dthread_join(dthread_t thread, void **retval);
 int dthread_kill(dthread_t thread, int sig);
 void dthread_cleanup(void);
 
+//temp function for debugging
 void show1();
 
 //spin lock

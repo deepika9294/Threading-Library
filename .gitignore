@@ -1,10 +1,5 @@
-/one-one/a.out
 /.vscode
 /pt.c
-/a.out
-/many-one/a.out
-/many-one/p
 /timer.c
 /mat.py
-one-one/test/t2.c
 many-one/test/t2.c

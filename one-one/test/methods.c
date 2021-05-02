@@ -5,7 +5,7 @@ dthread_t t1[10];
 static int check = 0;
 static int counter = 0;
 static int signal_counter = 0;
-static int term = 0;
+int run = 0;
 
 
 int testing(int a, int b) {
@@ -66,10 +66,22 @@ void* cont(void *args) {
 
 }
 
+void* sig_loop(void *args) {
+    while(run);
+    return (void *)42;
+}
+
+void signal_handler(int sig) {
+    // printf("Inside handler %d\n", sig);
+    run = 0;
+    return;
+}
+
 int main() {
 
     //for getting return values
     void *tret;
+    signal(SIGUSR2, signal_handler);
 
     printf("\n\n-----------------ALL THE METHODS TESTING (CREATE, JOIN, EXIT, KILL)--------------\n\n");
 	dthread_init();
@@ -138,6 +150,21 @@ int main() {
             printf("**PASSED**: Thread exit test, i.e rest of the instructions are not executed\n");
         }
     }
+
+    c1 = dthread_create( &t1[8], sig_loop, NULL);
+    int s = dthread_kill(t1[8], SIGUSR2);
+    dthread_join(t1[8],&tret);
+
+    if(c1 == 0) {
+        check = testing((intptr_t)tret, 42);
+        if(check == 0) {
+            printf("**FAILED**: Signal Handler test case for infinite loop\n");
+        }
+        else {
+            printf("**PASSED**: Signal Handler test case for infinite loop\n");
+        }
+    }
+
 
     c1 = dthread_create( &t1[5], looping, NULL);
     // j1 = dthread_join(t1[5], &tret);

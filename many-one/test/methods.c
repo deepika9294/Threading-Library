@@ -5,7 +5,7 @@ dthread_t t1[10];
 static int check = 0;
 static int counter = 0;
 static int signal_counter = 0;
-static int term = 0;
+int run = 1;
 
 
 int testing(int a, int b) {
@@ -59,32 +59,27 @@ void* looping(void *args) {
     while(1);
     return NULL;
 }
+void* sig_loop(void *args) {
+    while(run);
+    return (void *)42;
+}
 
 void* cont(void *args) {
     signal_counter++;
     return NULL;
 
 }
-
-void* func2(void *args){
-	printf("Hi, Sup\n");
-
-    dthread_exit(NULL);
-	printf("Hi, Supss\n");
-
-	return NULL;
-}
 void signal_handler(int sig) {
-    printf("Handled signal\n");
-    term++;
+    // printf("Inside handler %d\n", sig);
+    run = 0;
+    return;
 }
-
 
 int main() {
 
     //for getting return values
     void *tret;
-
+    signal(SIGUSR2, signal_handler);
     printf("\n\n-----------------MANY-ONE TESTING STARTS--------------\n\n");
 	dthread_init();
 
@@ -163,16 +158,30 @@ int main() {
         }
     }
 
+    c1 = dthread_create( &t1[6], sig_loop, NULL);
+    int s = dthread_kill(t1[6], SIGUSR2);
+    dthread_join(t1[6],&tret);
+
+    if(c1 == 0) {
+        check = testing((intptr_t)tret, 42);
+        if(check == 0) {
+            printf("**FAILED**: Signal Handler test case for infinite loop\n");
+        }
+        else {
+            printf("**PASSED**: Signal Handler test case for infinite loop\n");
+        }
+    }
+
+
     c1 = dthread_create( &t1[5], looping, NULL);
-    // j1 = dthread_join(t1[5], &tret);
     int k = dthread_kill(t1[5], -20);
     if(c1 == 0) {
         check = testing(k, EINVAL);
         if(check == 0) {
-            printf("**FAILED**: Invalid Signal Test\n");
+            printf("**FAILED**: Invalid Signal No. Test\n");
         }
         else {
-            printf("**PASSED**: Invalid Signal Test\n");
+            printf("**PASSED**: Invalid Signal No. Test\n");
         }
     }
     k = dthread_kill(34, SIGUSR1);
@@ -195,8 +204,10 @@ int main() {
             printf("**PASSED**: Valid Signal Test: SIGKILL\n");
         }
     }
-    j1 = dthread_join(t1[5], &tret);
+    printf("\n--------------------------------EXITING METHODS TEST--------------------------------\n\n");
 
+    j1 = dthread_join(t1[5], &tret);
+    
 
     
     dthread_exit(NULL);
