@@ -1,11 +1,12 @@
-Implementation of User-Level Multithreading Library
+**Implementation of User-Level Multithreading Library**__
 
-Modes Implemented
+**Modes Implemented**
 
-    One-one Model : Each user thread is mapped to kernel thread
-    Many-one Model : Multiple user threads with one kernel thread. SIGVTALRM signals are used to do the scheduling of user threads. 
+-     One-one Model : Each user thread is mapped to kernel thread
+-     Many-one Model : Multiple user threads with one kernel thread. SIGVTALRM signals are used to do the scheduling of user threads. 
 
-Functions Supported
+
+**Functions Supported**
 
     dthread_create()
     dthread_join()
@@ -13,16 +14,16 @@ Functions Supported
     dthread_kill()
     dthread_self()
 
-    Synchornization methods
+**Synchornization methods**
 
-        dthread_spin_lock()
-        dthread_spin_unlock()
-        dthread_spin_trylock()
-        dthread_mutex_lock()
-        dthread_mutex_unlock()
+    dthread_spin_lock()
+    dthread_spin_unlock()
+    dthread_spin_trylock()
+    dthread_mutex_lock()
+    dthread_mutex_unlock()
 
 
-Automated Testing
+**Automated Testing**
 
 To run the automated testing for both the models simultaneously, navigate to the root folder of the project and run, :
     make run
