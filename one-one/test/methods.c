@@ -21,7 +21,12 @@ void* add(void *args) {
     int a = 89;
     int b = 11;
     return (void *)(intptr_t)(a+b);
-}	
+}
+
+void* square(void *args) {
+    int n = (intptr_t)args;
+    return (void *)(intptr_t)(n*n);
+}
 
 void* deadlock(void *args) {
     
@@ -61,14 +66,6 @@ void* cont(void *args) {
 
 }
 
-void* func2(void *args){
-	printf("Hi, Sup\n");
-
-    dthread_exit(NULL);
-	printf("Hi, Supss\n");
-
-	return NULL;
-}
 void signal_handler(int sig) {
     printf("Handled signal\n");
     term++;
@@ -200,8 +197,19 @@ int main() {
     j1 = dthread_join(t1[5], &tret);
     j1 = dthread_join(t1[6], &tret);
 
-    
-    printf("\n-----------------------------EXITING METHODS TEST-----------------------------\n\n");
+    c1 = dthread_create( &t1[7], square, (void *)(intptr_t)(4));
+    j1 = dthread_join(t1[7], &tret);
+    if(c1 == 0 && j1 == 0) {
+        check = testing((intptr_t)tret, 16);
+        if(check == 0) {
+            printf("**FAILED**: Creating threads with args and join return value test\n");
+        }
+        else {
+            printf("**PASSED**: Creating threads with args and join return value test\n");
+        }
+    }
+
+    printf("\n--------------------------------EXITING METHODS TEST--------------------------------\n\n");
     
     dthread_exit(NULL);
     return 0;

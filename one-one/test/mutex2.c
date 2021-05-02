@@ -29,7 +29,8 @@ int main(void)
     int error;
     dthread_init();
     dthread_mutex_init(&lock);
-    printf("\n***** MUTEX TEST->2 *****\n");
+    printf("\n***** MUTEX TEST : 2 *****\n");
+    printf("TEST : Thread Synchronization using a shared resource \"counter \" avoiding race condition\n");
 
     while (i < 3) {
         error = dthread_create(&(tid[i]),&func, NULL);

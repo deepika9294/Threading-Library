@@ -23,7 +23,7 @@
 #define TERMINATED 3
 
 //20msec
-#define ALARM 20000
+#define ALARM 2000
 
 typedef unsigned long int dthread_t;
 typedef unsigned int dthread_spinlock_t;
