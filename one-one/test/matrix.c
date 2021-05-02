@@ -61,10 +61,10 @@ void print_matrix(matrix *t) {
         // printf("\n");
     }
     if(final_check == 1) {
-        printf("**PASSED** : MATRIX TEST with rows=%d, columns=%d", t->r, t->c);
+        printf("**PASSED** : MATRIX TEST with rows=%d, columns=%d\n", t->r, t->c);
     }
     else {
-        printf("**FAILED** : MATRIX TEST with rows=%d, columns=%d", t->r, t->c);
+        printf("**FAILED** : MATRIX TEST with rows=%d, columns=%d\n", t->r, t->c);
 
     }
 

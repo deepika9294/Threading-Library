@@ -23,6 +23,11 @@ void* add(void *args) {
     return (void *)(intptr_t)(a+b);
 }	
 
+void* square(void *args) {
+    int n = (intptr_t)args;
+    return (void *)(intptr_t)(n*n);
+}
+
 void* deadlock(void *args) {
     
     int d  = dthread_join(t1[2], NULL);
@@ -80,7 +85,7 @@ int main() {
     //for getting return values
     void *tret;
 
-    printf("\n\n-----------------ALL THE METHODS TESTING (CREATE, JOIN, EXIT, KILL)--------------\n\n");
+    printf("\n\n-----------------MANY-ONE TESTING STARTS--------------\n\n");
 	dthread_init();
 
 	int c1 = dthread_create( &t1[0], add , NULL);
@@ -109,6 +114,17 @@ int main() {
             printf("**PASSED**: Joining an invalid thread test\n");
         }
     }
+    c1 = dthread_create( &t1[6], square, (void *)(intptr_t)(4));
+    j1 = dthread_join(t1[6], &tret);
+    if(c1 == 0 && j1 == 0) {
+        check = testing((intptr_t)tret, 16);
+        if(check == 0) {
+            printf("**FAILED**: Creating threads with args and join return value test\n");
+        }
+        else {
+            printf("**PASSED**: Creating threads with args and join return value test\n");
+        }
+    }
 
     j1 = dthread_join(t1[0], NULL);
     check = testing(j1, EINVAL);
@@ -118,7 +134,6 @@ int main() {
     else {
         printf("**PASSED**: Joining on already joined thread test\n");
     }
-
 
     c1 = dthread_create( &t1[2], deadlock , NULL);
 
@@ -174,15 +189,15 @@ int main() {
     if(c1 == 0) {
         check = testing(k, 0);
         if(check == 0) {
-            printf("**FAILED**: Valid Signal Test\n");
+            printf("**FAILED**: Valid Signal Test: SIGKILL\n");
         }
         else {
-            printf("**PASSED**: Valid Signal Test\n");
+            printf("**PASSED**: Valid Signal Test: SIGKILL\n");
         }
     }
-    printf("\n-----------------------------EXITING METHODS TEST-----------------------------\n\n");
-
     j1 = dthread_join(t1[5], &tret);
+
+
     
     dthread_exit(NULL);
     return 0;

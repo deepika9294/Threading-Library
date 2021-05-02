@@ -21,6 +21,7 @@ typedef struct {
 
 // Matrix declaration
 matrix a,b,res;
+int final_check = 1;
 
 
 // initialisation of matrix
@@ -48,16 +49,27 @@ void read_input(matrix *t, FILE *file) {
 }
 
 void print_matrix(matrix *t) {
-    printf("\n\n----------------------------------MATRIX TEST -------------------------------\n\n");
-    printf("%d %d\n",t->r,t->c);
+    printf("\n");
+    // printf("%d %d\n",t->r,t->c);
+    // t->mat[5][5] = 34;
+
     for(int i = 0; i < t->r; i++) {
         for(int j = 0; j < t->c; j++) {
-            printf("%d ", t->mat[i][j]);
+            // printf("%d ", t->mat[i][j]);
+            // just for test case
+            if(t->mat[i][j] != 80){
+                final_check = 0;
+            }
         }
-        printf("\n");
+        // printf("\n");
     }
-    printf("\n\n-----------------------------ENDING MATRIX TEST --------------------------------\n\n");
+    if(final_check == 1) {
+        printf("**PASSED** : MATRIX TEST with rows=%d, columns=%d\n", t->r, t->c);
+    }
+    else {
+        printf("**FAILED** : MATRIX TEST with rows=%d, columns=%d\n", t->r, t->c);
 
+    }
 }
 
 // freeing the space

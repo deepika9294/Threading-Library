@@ -66,12 +66,6 @@ void* cont(void *args) {
 
 }
 
-void signal_handler(int sig) {
-    printf("Handled signal\n");
-    term++;
-}
-
-
 int main() {
 
     //for getting return values
@@ -172,10 +166,10 @@ int main() {
     if(c1 == 0) {
         check = testing(k, 0);
         if(check == 0) {
-            printf("**FAILED**: Valid Signal Test\n");
+            printf("**FAILED**: Valid Signal Test : SIGTSTP\n");
         }
         else {
-            printf("**PASSED**: Valid Signal Test\n");
+            printf("**PASSED**: Valid Signal Test : SIGTSTP\n");
         }
     }
 
@@ -208,7 +202,6 @@ int main() {
             printf("**PASSED**: Creating threads with args and join return value test\n");
         }
     }
-
     printf("\n--------------------------------EXITING METHODS TEST--------------------------------\n\n");
     
     dthread_exit(NULL);

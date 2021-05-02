@@ -1,3 +1,10 @@
+default : run
+
+build : matrix_test spin_test methods_test
+
+run : build	
+	./run.sh
+
 matrix_test : dthread.o queue.o matrix.o
 			cc -o matrix_test dthread.o queue.o matrix.o
 
