@@ -84,7 +84,7 @@ int main() {
     //for getting return values
     void *tret;
     signal(SIGUSR2, signal_handler);
-    printf("\n\n-----------------MANY-ONE TESTING STARTS--------------\n\n");
+    printf("\n\n-----------------ALL THE METHODS TESTING (CREATE, JOIN, EXIT, KILL)--------------\n\n");
 	dthread_init();
 
 	int c1 = dthread_create( &t1[0], add , NULL);
