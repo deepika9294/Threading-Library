@@ -46,7 +46,7 @@ dthread_t dthread_self(void);
 int dthread_join(dthread_t thread, void **retval);
 int dthread_kill(dthread_t thread, int sig);
 void dthread_cleanup(void);
-//temp function
+//temp function for debugging
 void show1();
 
 

@@ -1,11 +1,15 @@
 #include "singlyll.h"
 
-//global variables
+//global variables, accessed by all the methods
 static list *threads;
 static pid_t main_thread_pid;
 static dthread_spinlock_t lock;
 
 
+/*
+*   Init function: before using any of the other methods user has to call this method
+*   It initializes the global threads list and a lock.
+*/
 void dthread_init() {
 
     dthread_spin_init(&lock);
@@ -14,6 +18,10 @@ void dthread_init() {
     main_thread_pid = getpid();
     init_threads(threads);
 }
+
+/*
+*   This method is used to clean all the threads before exiting
+*/
 
 void dthread_cleanup() {
     dthread_spin_lock(&lock);
@@ -32,6 +40,11 @@ void dthread_cleanup() {
 
 }
 
+/*
+*   A wrapper function which is used by clone system call,
+*   Takes thread details as the argument and actually execute the routine
+*/
+
 int fn(void *arg) {
 
     dthread *t = (dthread *)arg;
@@ -39,6 +52,14 @@ int fn(void *arg) {
     return 0;
 
 }
+
+/*
+*   A thread block is initialised with the details passed.
+*   Stack is initialsed for the particular thread with the help of mmap()
+*   Threads are created with the help of clone()
+*   And the thread information is stored in global threads list
+*   dthread_t thread value is changed with respective tid for user side
+*/
 
 int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *args) {
 
@@ -77,6 +98,10 @@ int dthread_create(dthread_t *thread, void *(*start_routine) (void *), void *arg
     return 0;
 }
 
+/*
+*   Terminate the thread, but before that save the return value into the thread structure.
+*   If main function is calling exit, it will wait for all the threads to get over first and then terminate main
+*/
 void dthread_exit(void *retval) {
     dthread_t tid = dthread_self();
 
@@ -87,7 +112,7 @@ void dthread_exit(void *retval) {
         // fetch all the tid and pass it to join function 
         node *ptr;
         if(threads->head == NULL) {
-            printf("\nEmpty");
+            // printf("\nEmpty");
             return;
         }
         dthread_spin_lock(&lock);
@@ -111,12 +136,22 @@ void dthread_exit(void *retval) {
     exit(0);
 }
 
+/*
+*   Gets the running thread id with the help of gettid()
+*/
+
 dthread_t dthread_self(void) {
 
     dthread_t tid = gettid();
     return tid;
 
 }
+
+/*
+*   All error checks are done before waiting for the thread specified to terminate
+*   waitpid() is used for waiting purpose
+*   retval passed as argument is modified by the actual retval of the thread
+*/
 
 int dthread_join(dthread_t thread, void **retval) {
 
@@ -128,18 +163,15 @@ int dthread_join(dthread_t thread, void **retval) {
 
     //join calling from same calling function
     if(tid == thread) {
-        // dthread_spin_unlock(&lock);
         return EDEADLK;
     }
 
     if(td == NULL){
-        // dthread_spin_unlock(&lock);
         return ESRCH;
     }
 
     
     if(td->state == JOINED) {
-        // dthread_spin_unlock(&lock);
         return EINVAL;
     }
     int status;
@@ -148,7 +180,6 @@ int dthread_join(dthread_t thread, void **retval) {
         td->state = JOINED;
         waitpid(thread,&status, 0);
         if(status == -1) {
-            // dthread_spin_unlock(&lock);
             perror("waitpid");
             exit(EXIT_FAILURE);
         }
@@ -157,9 +188,13 @@ int dthread_join(dthread_t thread, void **retval) {
     if(retval) {
         *retval = td->retval;
     }
-    // dthread_spin_unlock(&lock);
     return 0; //success
 }
+
+/*
+*   All Error checking is done before actually raising the signal to the specified thread
+*   and status is returned
+*/
 
 int dthread_kill(dthread_t thread, int sig) {
     //if sig is 0, no signal is sent
@@ -184,7 +219,7 @@ int dthread_kill(dthread_t thread, int sig) {
 }
 
 /*
- * Reffered concept from the link: https://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html 
+ * Referred concept from the link: https://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html 
  */
 int dthread_spin_init(dthread_spinlock_t *lock) {
     *lock = 0;
@@ -216,14 +251,13 @@ int dthread_spin_unlock(dthread_spinlock_t *lock) {
 *Mutex locks
 */
 
-
 int dthread_mutex_init(dthread_mutex_t *mutex) {
     *mutex = 0;
     return 0;
 }
 
 /*
-*   Logic of the code is referred from a git repo, link is pasted below:
+*   Logic of the mutex_lock code is referred from a git repo, link is pasted below:
 *   https://github.com/eliben/code-for-blog/blob/master/2018/futex-basics/mutex-using-futex.cpp
 */
 
@@ -258,8 +292,6 @@ int dthread_mutex_unlock(dthread_mutex_t *mutex) {
    }
    return 0;
 }
-
-
 
 //temp function for debugging
 void show1() {
