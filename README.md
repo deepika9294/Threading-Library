@@ -29,12 +29,13 @@
         make run
 
     For individual model testing:
--         For one-one, run:
--             cd one-one
--             make run
--         For many-one. run:
--             cd many-one
--             make run
+        For one-one, run:
+            cd one-one
+            make run
+        For many-one. run:
+            cd many-one
+            make run
+
 
 
     To clean all the object files created, run:
