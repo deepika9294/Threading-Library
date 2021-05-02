@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include "../dthread.h"
 #include <stdlib.h>
+#define GREEN "\033[0;32;32m"
+#define RED "\033[0;31;31m"
+#define NONE "\033[m"
+
 
 // structure for matrix
 typedef struct {
@@ -61,10 +65,10 @@ void print_matrix(matrix *t) {
         // printf("\n");
     }
     if(final_check == 1) {
-        printf("**PASSED** : MATRIX TEST with rows=%d, columns=%d\n", t->r, t->c);
+        printf(GREEN "**PASSED** : MATRIX TEST with rows=%d, columns=%d\n" NONE, t->r, t->c);
     }
     else {
-        printf("**FAILED** : MATRIX TEST with rows=%d, columns=%d\n", t->r, t->c);
+        printf(RED "**FAILED** : MATRIX TEST with rows=%d, columns=%d\n" NONE, t->r, t->c);
 
     }
 

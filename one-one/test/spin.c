@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include "../dthread.h"
 
+#define GREEN "\033[0;32;32m"
+#define RED "\033[0;31;31m"
+#define NONE "\033[m"
+
 long c = 0, c1 = 0, c2 = 0, c3 = 0, c4 = 0, run = 1;
 dthread_spinlock_t lock;
 void *thread1(void *arg) {
@@ -67,10 +71,10 @@ int main() {
 	dthread_join(th2, NULL);
 
 	if(c == c1 + c2 + c3 + c4) {
-		printf("**PASSED**: Spin lock test for race problem between 4 threads\n");
+		printf(GREEN "**PASSED**: Spin lock test for race problem between 4 threads\n" NONE);
 	}
 	else {
-		printf("**FAILED**: Spin lock test for race problem between 4 threads\n");
+		printf(RED "**FAILED**: Spin lock test for race problem between 4 threads\n" NONE);
 	}
 
     // printf("\n%ld %ld %ld %ld %ld %ld\n", c, c1+c2+c3+c4 , c1, c2, c3, c4);

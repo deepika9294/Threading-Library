@@ -1,6 +1,11 @@
 #include "../dthread.h"
 #include <stdint.h>
 
+#define GREEN "\033[0;32;32m"
+#define RED "\033[0;31;31m"
+#define NONE "\033[m"
+
+
 dthread_t t1[10];
 static int check = 0;
 static int counter = 0;
@@ -34,10 +39,10 @@ void* deadlock(void *args) {
 
     check = testing(d,EDEADLK);
     if(check == 0) {
-        printf("**FAILED**: Deadlock Join test\n");
+        printf(RED "**FAILED**: Deadlock Join test\n" NONE);
     }
     else {
-        printf("**PASSED**: Deadlock join test\n");
+        printf(GREEN "**PASSED**: Deadlock join test\n" NONE);
     }
     return (void *)(intptr_t)(d);
 
@@ -91,10 +96,10 @@ int main() {
     if( c1 == 0 && j1 == 0 ) {
         check = testing((intptr_t)tret, 100);
         if(check == 0) {
-            printf("**FAILED**: Addition test with create and join return value\n");
+            printf(RED "**FAILED**: Addition test with create and join return value\n" NONE);
         }
         else {
-            printf("**PASSED**: Addition test with create and join return value\n");
+            printf(GREEN "**PASSED**: Addition test with create and join return value\n" NONE);
         }
     }
     else {
@@ -106,20 +111,20 @@ int main() {
     if(c1 == 0) {
        check = testing(j1,ESRCH);
        if(check == 0) {
-            printf("**FAILED**: Joining an invalid thread test\n");
+            printf(RED "**FAILED**: Joining an invalid thread test\n" NONE);
         }
         else {
-            printf("**PASSED**: Joining an invalid thread test\n");
+            printf(GREEN "**PASSED**: Joining an invalid thread test\n" NONE);
         }
     }
 
     j1 = dthread_join(t1[0], NULL);
     check = testing(j1, EINVAL);
     if(check == 0) {
-        printf("**FAILED**: Joining on already joined thread test\n");
+        printf(RED "**FAILED**: Joining on already joined thread test\n" NONE);
     }
     else {
-        printf("**PASSED**: Joining on already joined thread test\n");
+        printf(GREEN "**PASSED**: Joining on already joined thread test\n" NONE);
     }
 
 
@@ -132,10 +137,10 @@ int main() {
     if(c1 == 0) {
         check = testing((intptr_t)tret, 100);
         if(check == 0) {
-            printf("**FAILED**: Thread exit test with retval\n");
+            printf(RED "**FAILED**: Thread exit test with retval\n" NONE);
         }
         else {
-            printf("**PASSED**: Thread exit test with retval\n");
+            printf(GREEN "**PASSED**: Thread exit test with retval\n" NONE);
         }
     }
     
@@ -144,10 +149,10 @@ int main() {
     if(c1 == 0) {
         check = testing(counter, 1);
         if(check == 0) {
-            printf("**FAILED**: Thread exit test, i.e rest of the instructions are not executed\n");
+            printf(RED "**FAILED**: Thread exit test, i.e rest of the instructions are not executed\n" NONE);
         }
         else {
-            printf("**PASSED**: Thread exit test, i.e rest of the instructions are not executed\n");
+            printf(GREEN "**PASSED**: Thread exit test, i.e rest of the instructions are not executed\n" NONE);
         }
     }
 
@@ -158,10 +163,10 @@ int main() {
     if(c1 == 0) {
         check = testing(run, 0);
         if(check == 0) {
-            printf("**FAILED**: Signal Handler test case for infinite loop\n");
+            printf(RED "**FAILED**: Signal Handler test case for infinite loop\n" NONE);
         }
         else {
-            printf("**PASSED**: Signal Handler test case for infinite loop\n");
+            printf(GREEN "**PASSED**: Signal Handler test case for infinite loop\n" NONE);
         }
     }
 
@@ -171,20 +176,20 @@ int main() {
     if(c1 == 0) {
         check = testing(k, EINVAL);
         if(check == 0) {
-            printf("**FAILED**: Invalid Signal Test\n");
+            printf(RED "**FAILED**: Invalid Signal Test\n" NONE);
         }
         else {
-            printf("**PASSED**: Invalid Signal Test\n");
+            printf(GREEN "**PASSED**: Invalid Signal Test\n" NONE);
         }
     }
     k = dthread_kill(34, SIGUSR1);
     if(c1 == 0) {
         check = testing(k, ESRCH);
         if(check == 0) {
-            printf("**FAILED**: Thread kill test on invalid thread\n");
+            printf(RED "**FAILED**: Thread kill test on invalid thread\n" NONE);
         }
         else {
-            printf("**PASSED**: Thread kill test on invalid thread\n");
+            printf(GREEN "**PASSED**: Thread kill test on invalid thread\n" NONE);
         }
     }
     k = dthread_kill(t1[5], SIGTSTP);
@@ -192,10 +197,10 @@ int main() {
     if(c1 == 0) {
         check = testing(k, 0);
         if(check == 0) {
-            printf("**FAILED**: Valid Signal Test : SIGTSTP\n");
+            printf(RED "**FAILED**: Valid Signal Test : SIGTSTP\n" NONE);
         }
         else {
-            printf("**PASSED**: Valid Signal Test : SIGTSTP\n");
+            printf(GREEN "**PASSED**: Valid Signal Test : SIGTSTP\n" NONE);
         }
     }
 
@@ -208,10 +213,10 @@ int main() {
     if(c1 == 0) {
         check = testing(signal_counter, 1);
         if(check == 0) {
-            printf("**FAILED**: SIGCONT handling test\n");
+            printf(RED "**FAILED**: SIGCONT handling test\n" NONE);
         }
         else {
-            printf("**PASSED**: SIGCONT handling test\n");
+            printf(GREEN "**PASSED**: SIGCONT handling test\n" NONE);
         }
     }
     j1 = dthread_join(t1[5], &tret);
@@ -222,10 +227,10 @@ int main() {
     if(c1 == 0 && j1 == 0) {
         check = testing((intptr_t)tret, 16);
         if(check == 0) {
-            printf("**FAILED**: Creating threads with args and join return value test\n");
+            printf(RED "**FAILED**: Creating threads with args and join return value test\n" NONE);
         }
         else {
-            printf("**PASSED**: Creating threads with args and join return value test\n");
+            printf(GREEN "**PASSED**: Creating threads with args and join return value test\n" NONE);
         }
     }
     printf("\n--------------------------------EXITING METHODS TEST--------------------------------\n\n");
