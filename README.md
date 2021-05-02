@@ -25,19 +25,20 @@
 
 **Automated Testing**
 
-To run the automated testing for both the models simultaneously, navigate to the root folder of the project and run, :
-    make run
-
-For individual model testing:
-    1. For one-one, run:
-        cd one-one
-        make run
-    2. For many-one. run:
-        cd many-one
+    To run the automated testing for both the models simultaneously, navigate to the root folder of the project and run, :
         make run
 
-To clean all the object files created, run:
-    make clean
+    For individual model testing:
+-         For one-one, run:
+-             cd one-one
+-             make run
+-         For many-one. run:
+-             cd many-one
+-             make run
+
+
+    To clean all the object files created, run:
+        make clean
     
 
 
